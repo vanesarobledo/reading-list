@@ -48,6 +48,7 @@ class User extends Authenticatable
     public function books(): BelongsToMany
     {
         return $this->belongstoMany(Book::class)
+            ->using(ReadingLogEntry::class)
             ->withPivot(['status', 'started_at', 'finished_at']);
     }
 }
