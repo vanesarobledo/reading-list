@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Book;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 
@@ -19,7 +20,18 @@ class BookController extends Controller
 
     public function store(Request $request)
     {
-        // return response('', Response::HTTP_CREATED);
+        $validated = $request->validate([
+            'title' => 'required',
+            'author' => 'required',
+            'isbn' => 'sometimes',
+            'publication_year' => 'sometimes|integer',
+            'external_source' => 'sometimes',
+            'external_id' => 'sometimes',
+        ]);
+
+        Book::create($validated);
+
+        return response('', Response::HTTP_CREATED);
     }
 
     public function show(string $id)
@@ -32,12 +44,10 @@ class BookController extends Controller
         //
     }
 
-
     public function update(Request $request, string $id)
     {
         //
     }
-
 
     public function destroy(string $id)
     {
