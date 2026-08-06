@@ -13,7 +13,7 @@ return new class extends Migration
             $table->string('title');
             $table->string('author');
             $table->string('publisher')->nullable();
-            $table->string('publication_year')->nullable();
+            $table->integer('publication_year')->nullable();
             $table->string('isbn')->nullable();
             $table->string('external_source')->nullable();
             $table->string('external_id')->nullable();
