@@ -14,7 +14,7 @@ describe('BookController', function () {
         $response = $this->actingAs(User::factory()->create())
             ->post('/book', $payload);
 
-        $response->assertStatus(Response::HTTP_CREATED);
+        $response->assertRedirectBack();
         $this->assertDatabaseHas('books', $payload);
     });
 });

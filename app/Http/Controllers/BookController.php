@@ -31,7 +31,7 @@ class BookController extends Controller
 
         Book::create($validated);
 
-        return response('', Response::HTTP_CREATED);
+        return redirect()->back();
     }
 
     public function show(string $id)
