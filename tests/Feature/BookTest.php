@@ -1,10 +1,9 @@
 <?php
 
 use App\Models\User;
-use Illuminate\Http\Response;
 
 describe('BookController', function () {
-    test('it can store a book', function () {
+    test('can store a book', function () {
         $payload = [
             'title' => 'One Hundred Years of Solitude',
             'author' => 'Gabriel García Márquez',
@@ -16,5 +15,14 @@ describe('BookController', function () {
 
         $response->assertRedirectBack();
         $this->assertDatabaseHas('books', $payload);
+    });
+    test('rejects invalid input with validation errors', function () {
+        $response = $this->actingAs(User::factory()->create())
+            ->post('/book', [
+                'title' => '',
+            ]);
+
+        $response->assertSessionHasErrors('title');
+        $this->assertDatabaseCount('books', 0);
     });
 });
