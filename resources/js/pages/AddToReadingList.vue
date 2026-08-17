@@ -1,12 +1,20 @@
 <script setup lang="ts">
 import { Form } from '@inertiajs/vue3';
-import { store } from '@/actions/App/Http/Controllers/BookController'
-
+import { store } from '@/actions/App/Http/Controllers/BookController';
 </script>
 
 <template>
     <h1 class="mb-4 text-2xl">Add to Reading List</h1>
-    <Form class="flex flex-col gap-4" :action="store()" resetOnSuccess>
+    <Form
+        class="flex flex-col gap-4"
+        :action="store()"
+        #default="{
+            errors,
+            processing,
+            wasSuccessful,
+        }"
+        resetOnSuccess
+    >
         <fieldset
             class="flex flex-col gap-2 rounded-lg border border-neutral-200 p-3 shadow-md"
         >
@@ -22,6 +30,9 @@ import { store } from '@/actions/App/Http/Controllers/BookController'
                     name="title"
                     required
                 />
+                <div v-if="errors.title" class="error">
+                    {{ errors.title }}
+                </div>
             </div>
             <div class="flex flex-col">
                 <div>
@@ -34,6 +45,9 @@ import { store } from '@/actions/App/Http/Controllers/BookController'
                     name="author"
                     required
                 />
+                <div v-if="errors.author" class="error">
+                    {{ errors.author }}
+                </div>
             </div>
             <div class="flex gap-3">
                 <div class="flex grow flex-col">
@@ -45,6 +59,9 @@ import { store } from '@/actions/App/Http/Controllers/BookController'
                         class="rounded-md border border-neutral-300 p-1"
                         name="publisher"
                     />
+                    <div v-if="errors.publisher" class="error">
+                        {{ errors.publisher }}
+                    </div>
                 </div>
                 <div class="flex grow-0 flex-col">
                     <div>
@@ -55,6 +72,9 @@ import { store } from '@/actions/App/Http/Controllers/BookController'
                         class="rounded-md border border-neutral-300 p-1"
                         name="publication_year"
                     />
+                    <div v-if="errors.publication_year" class="error">
+                        {{ errors.publication_year }}
+                    </div>
                 </div>
             </div>
             <div class="flex flex-col">
@@ -66,13 +86,18 @@ import { store } from '@/actions/App/Http/Controllers/BookController'
                     class="rounded-md border border-neutral-300 p-1"
                     name="ISBN"
                 />
+                <div v-if="errors.isbn" class="error">
+                    {{ errors.isbn }}
+                </div>
             </div>
         </fieldset>
         <button
             type="submit"
             class="w-1/4 rounded-md bg-neutral-300 p-3 font-bold hover:bg-black hover:text-white"
+            :disabled="processing"
         >
-            Add Book
+            {{ processing ? "Adding Book..." : "Add Book"}}
         </button>
+        <div v-if="wasSuccessful">Book added successfully!</div>
     </Form>
 </template>
