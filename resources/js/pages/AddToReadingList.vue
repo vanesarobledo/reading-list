@@ -1,22 +1,12 @@
 <script setup lang="ts">
-import { useForm } from '@inertiajs/vue3';
+import { Form } from '@inertiajs/vue3';
+import { store } from '@/actions/App/Http/Controllers/BookController'
 
-const addBookForm = useForm({
-    title: '',
-    author: '',
-    publisher: '',
-    publication_year: 0,
-    ISBN: '',
-});
-
-const submitAddBook = () => {
-    addBookForm.post('/book');
-};
 </script>
 
 <template>
     <h1 class="mb-4 text-2xl">Add to Reading List</h1>
-    <form class="flex flex-col gap-4" @submit.prevent="submitAddBook()">
+    <Form class="flex flex-col gap-4" :action="store()" resetOnSuccess>
         <fieldset
             class="flex flex-col gap-2 rounded-lg border border-neutral-200 p-3 shadow-md"
         >
@@ -29,7 +19,7 @@ const submitAddBook = () => {
                 <input
                     type="text"
                     class="rounded-md border border-neutral-300 p-1"
-                    v-model="addBookForm.title"
+                    name="title"
                     required
                 />
             </div>
@@ -41,7 +31,7 @@ const submitAddBook = () => {
                 <input
                     type="text"
                     class="rounded-md border border-neutral-300 p-1"
-                    v-model="addBookForm.author"
+                    name="author"
                     required
                 />
             </div>
@@ -53,7 +43,7 @@ const submitAddBook = () => {
                     <input
                         type="text"
                         class="rounded-md border border-neutral-300 p-1"
-                        v-model="addBookForm.publisher"
+                        name="publisher"
                     />
                 </div>
                 <div class="flex grow-0 flex-col">
@@ -63,7 +53,7 @@ const submitAddBook = () => {
                     <input
                         type="number"
                         class="rounded-md border border-neutral-300 p-1"
-                        v-model="addBookForm.publication_year"
+                        name="publication_year"
                     />
                 </div>
             </div>
@@ -74,7 +64,7 @@ const submitAddBook = () => {
                 <input
                     type="text"
                     class="rounded-md border border-neutral-300 p-1"
-                    v-model="addBookForm.ISBN"
+                    name="ISBN"
                 />
             </div>
         </fieldset>
@@ -84,5 +74,5 @@ const submitAddBook = () => {
         >
             Add Book
         </button>
-    </form>
+    </Form>
 </template>
