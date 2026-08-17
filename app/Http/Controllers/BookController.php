@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Models\Book;
 use Illuminate\Http\Request;
-use Illuminate\Http\Response;
 
 class BookController extends Controller
 {
@@ -24,7 +23,7 @@ class BookController extends Controller
             'title' => 'required',
             'author' => 'required',
             'isbn' => 'sometimes',
-            'publication_year' => 'sometimes|integer',
+            'publication_year' => 'nullable|integer',
             'external_source' => 'sometimes',
             'external_id' => 'sometimes',
         ]);
