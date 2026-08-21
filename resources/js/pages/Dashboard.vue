@@ -17,9 +17,7 @@ defineOptions({
 
 <template>
     <Head title="Dashboard" />
-    <div
-        class="flex h-full flex-1 flex-col gap-4 rounded-xl p-4"
-    >
+    <div class="flex h-full flex-1 flex-col gap-4 rounded-xl p-4">
         <div
             class="min-h-screen flex-1 rounded-xl border p-4 md:min-h-min dark:border-sidebar-border"
         >

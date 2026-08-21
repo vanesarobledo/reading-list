@@ -8,11 +8,7 @@ import { store } from '@/actions/App/Http/Controllers/BookController';
     <Form
         class="flex flex-col gap-4"
         :action="store()"
-        #default="{
-            errors,
-            processing,
-            wasSuccessful,
-        }"
+        #default="{ errors, processing, wasSuccessful }"
         resetOnSuccess
     >
         <fieldset
@@ -96,7 +92,7 @@ import { store } from '@/actions/App/Http/Controllers/BookController';
             class="w-1/4 rounded-md bg-neutral-300 p-3 font-bold hover:bg-black hover:text-white"
             :disabled="processing"
         >
-            {{ processing ? "Adding Book..." : "Add Book"}}
+            {{ processing ? 'Adding Book...' : 'Add Book' }}
         </button>
         <div v-if="wasSuccessful">Book added successfully!</div>
     </Form>
