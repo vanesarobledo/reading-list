@@ -10,7 +10,7 @@ class ReadingLogEntry extends Pivot
 {
     public $incrementing = true;
 
-    protected $table = 'book_user';
+    protected $table = 'book_user_pivot';
 
     protected $fillable = [
         'user_id',
