@@ -7,9 +7,18 @@ use Illuminate\Http\Request;
 
 class BookController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        //
+        if ($request->query('search')) {
+            $books = Book::query()
+                ->whereLike('title', $request->query('search'))
+                ->paginate(10);
+
+            return $books->toJson();
+        } else {
+            return Book::paginate(10)
+                ->toJson();
+        }
     }
 
     public function create()
