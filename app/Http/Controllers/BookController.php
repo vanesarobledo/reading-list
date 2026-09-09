@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Resources\BookResource;
 use App\Models\Book;
 use Illuminate\Http\Request;
 
@@ -15,11 +16,11 @@ class BookController extends Controller
                 ->orWhereLike('author', $request->query('search'))
                 ->paginate(10);
 
-            return $books->toJson();
         } else {
-            return Book::paginate(10)
-                ->toJson();
+            $books = Book::paginate(10);
         }
+
+        return BookResource::collection($books);
     }
 
     public function create()

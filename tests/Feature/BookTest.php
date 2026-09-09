@@ -27,18 +27,20 @@ test('rejects invalid input with validation errors', function () {
     $this->assertDatabaseCount('books', 0);
 });
 
-test('returns a paginated json structure for the book list', function () {
+test('returns a paginated json structure for the book list', closure: function () {
     Book::factory()->create();
 
     $response = $this->actingAs(User::factory()->create())
         ->get('/book');
 
     $response->assertOk();
-    $response->assertJsonStructure([
-        'total',
-        'per_page',
-        'current_page',
-        'last_page',
+    $response->assertJsonStructure(structure: [
+        'meta' => [
+            'total',
+            'per_page',
+            'current_page',
+            'last_page',
+        ],
         'data' => ['*' => [
             'id',
             'title',
