@@ -74,6 +74,21 @@ test('includes real book data in the paginated response', function () {
     ]);
 });
 
+test('includes author data in the paginated response', function () {
+    $author = 'Gabriel García Márquez';
+    Book::factory()->create([
+        'author' => $author,
+    ]);
+
+    $response = $this->actingAs(User::factory()->create())
+        ->get('/book?'.http_build_query([['search' => $author]]));
+
+    $response->assertOk();
+    $response->assertJsonFragment([
+        'author' => $author,
+    ]);
+});
+
 test('excludes non-matching books from search results', function () {
     $matchingTitle = 'One Hundred Years of Solitude';
     $nonMatchingTitle = 'Moby Dick';
