@@ -12,6 +12,7 @@ class BookController extends Controller
         if ($request->query('search')) {
             $books = Book::query()
                 ->whereLike('title', $request->query('search'))
+                ->orWhereLike('author', $request->query('search'))
                 ->paginate(10);
 
             return $books->toJson();
