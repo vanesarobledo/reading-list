@@ -1,5 +1,6 @@
 import { refDebounced } from '@vueuse/core';
 import type { ComputedRef, Ref } from 'vue';
+import { onScopeDispose } from 'vue';
 import { computed } from 'vue';
 import { ref, watch } from 'vue';
 import { index } from '@/actions/App/Http/Controllers/BookController';
@@ -24,10 +25,14 @@ export function useBookSearch(): UseBookSearchReturn {
     const belowMinimumLength = computed(() => {
         return searchQuery.value.length < MIN_QUERY_LENGTH;
     });
+    const isDebounceSettled = computed(() => {
+        return debounced.value === searchQuery.value;
+    });
     const noResults = computed(() => {
         return (
             searchResults.value.length === 0 &&
             !belowMinimumLength.value &&
+            isDebounceSettled.value &&
             !loading.value &&
             !error.value
         );
@@ -60,14 +65,16 @@ export function useBookSearch(): UseBookSearchReturn {
             console.log(result);
             searchResults.value = result.data;
         } catch (e: unknown) {
-            if (abortController.value === fetchAbortController) {
-                // TODO: Better error messages
-                if (e instanceof Error) {
-                    console.error(e.message);
-                    error.value = e.message;
-                } else {
-                    error.value = 'Error retrieving search results';
-                }
+            // TODO: Better error messages
+            if (e instanceof Error && e.name === 'AbortError') {
+                return;
+            }
+
+            if (e instanceof Error) {
+                console.error(e.message);
+                error.value = e.message;
+            } else {
+                error.value = 'Error retrieving search results';
             }
         } finally {
             if (abortController.value === fetchAbortController) {
@@ -86,6 +93,12 @@ export function useBookSearch(): UseBookSearchReturn {
             await fetchResults();
         },
     );
+
+    onScopeDispose(() => {
+        if (abortController.value) {
+            abortController.value.abort();
+        }
+    });
 
     return {
         results: searchResults,
