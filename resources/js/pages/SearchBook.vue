@@ -1,28 +1,33 @@
 <script setup lang="ts">
-import { Form } from '@inertiajs/vue3';
+import { useBookSearch } from '@/composables/useBookSearch';
+
+/* loading, error, belowMinimumLength, noResults */
+const { query, results } = useBookSearch();
 </script>
 
 <template>
-    <Form class="flex flex-col gap-4" resetOnSuccess>
+    <div class="flex flex-col gap-4">
         <fieldset
             class="flex flex-col gap-2 rounded-lg border border-neutral-200 p-3 shadow-md"
         >
             <legend class="text-lg font-bold">Search for a Book</legend>
-            <div class="flex justify-between">
-                <input
-                    type="text"
-                    class="rounded-md border border-neutral-300 p-1"
-                    name="query"
-                    placeholder="Search books..."
-                    required
-                />
-                <button
-                    type="submit"
-                    class="w-1/4 rounded-md bg-neutral-300 p-3 font-bold hover:bg-black hover:text-white"
-                >
-                    Search
-                </button>
-            </div>
+            <input
+                type="text"
+                class="flex-2 rounded-md border border-neutral-300 p-2"
+                name="query"
+                v-model="query"
+                placeholder="Search books by title or author..."
+                required
+            />
         </fieldset>
-    </Form>
+
+        <div>
+            <ul v-show="results">
+                <li v-for="result in results" :key="result.id">
+                    <input type="radio" /> {{ result.title }} by
+                    {{ result.author }}
+                </li>
+            </ul>
+        </div>
+    </div>
 </template>

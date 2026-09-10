@@ -10,6 +10,7 @@ const MIN_QUERY_LENGTH = 2;
 const PER_PAGE = '5';
 
 export type UseBookSearchReturn = {
+    query: Ref<string>;
     results: Ref<Array<Book>>;
     loading: Ref<boolean>;
     error: Ref<string | null>;
@@ -42,7 +43,6 @@ export function useBookSearch(): UseBookSearchReturn {
     async function fetchResults() {
         if (abortController.value) {
             abortController.value.abort();
-            console.log('Fetch results aborted');
         }
 
         const fetchAbortController: AbortController = new AbortController();
@@ -62,6 +62,7 @@ export function useBookSearch(): UseBookSearchReturn {
             const signal: AbortSignal = abortController.value.signal;
             const response: Response = await fetch(url, { signal });
             const result: PaginatedResponse<Book> = await response.json();
+            console.log(url);
             console.log(result);
             searchResults.value = result.data;
         } catch (e: unknown) {
@@ -101,6 +102,7 @@ export function useBookSearch(): UseBookSearchReturn {
     });
 
     return {
+        query: searchQuery,
         results: searchResults,
         loading: loading,
         error: error,
