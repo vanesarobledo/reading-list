@@ -98,6 +98,43 @@ test('includes real book data in the paginated response', function () {
     ]);
 });
 
+test('includes multiple matching results with query', function () {
+    $matchingBook1 = Book::factory()->create(
+        [
+            'title' => 'One Hundred Years of Solitude',
+        ]
+    );
+
+    $matchingBook2 = Book::factory()->create(
+        [
+            'title' => 'One Punch Man',
+        ]
+    );
+
+    $nonMatchingBook = Book::factory()->create(
+        [
+            'title' => 'Moby Dick',
+        ]
+    );
+
+    $query = 'one';
+
+    $response = $this->actingAs(User::factory()->create())
+        ->get('/book?'.http_build_query(['search' => $query]));
+
+    $response->assertOk();
+    $response->assertJsonCount(2, 'data');
+    $response->assertJsonFragment([
+        'title' => $matchingBook1->title,
+    ]);
+    $response->assertJsonFragment([
+        'title' => $matchingBook2->title,
+    ]);
+    $response->assertJsonMissing([
+        'title' => $nonMatchingBook->title,
+    ]);
+});
+
 test('includes author data in the paginated response', function () {
     $author = 'Gabriel García Márquez';
     Book::factory()->create([
@@ -126,13 +163,12 @@ test('excludes non-matching books from search results', function () {
     );
 
     $response = $this->actingAs(User::factory()->create())
-        ->get('/book?'.http_build_query(['search' => $matchingTitle]));
+        ->get('/book?'.http_build_query(['search' => 'one']));
 
     $response->assertOk();
     $response->assertJsonMissing([
         'title' => $nonMatchingTitle,
     ]);
-
 });
 
 test('returns an empty paginated response when there are no books', function () {
