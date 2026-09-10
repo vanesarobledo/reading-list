@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\BookController;
 use App\Models\Book;
 use App\Models\User;
 
@@ -49,18 +50,39 @@ test('returns a paginated json structure for the book list', closure: function (
     ]);
 });
 
-test('limits the number of books returned to the page size', function () {
-    $numBooks = 15;
-    $expectPerPage = 10;
+test('limits the number of books returned to number per page sent', function () {
+    $numBooks = 25;
+    $expectPerPage = 20;
 
     Book::factory($numBooks)->create();
 
     $response = $this->actingAs(User::factory()->create())
-        ->get('/book');
+        ->get('/book?'.http_build_query(['per_page' => $expectPerPage]));
 
     $response->assertOk();
     $response->assertJsonCount($expectPerPage, 'data');
 });
+
+test('returns max number of results when requested per page is greater than max', function () {
+    $greaterThanMax = 100;
+    Book::factory($greaterThanMax)->create();
+
+    $response = $this->actingAs(User::factory()->create())
+        ->get('/book?'.http_build_query(['per_page' => $greaterThanMax]));
+
+    $response->assertOk();
+    $response->assertJsonCount(BookController::MAX_PER_PAGE, 'data');
+});
+
+test('returns default number per page when per page query string is a non-positive int', function (mixed $nonPositiveIntPerPage) {
+    Book::factory(BookController::DEFAULT_PER_PAGE)->create();
+
+    $response = $this->actingAs(User::factory()->create())
+        ->get('/book?'.http_build_query([['per_page' => $nonPositiveIntPerPage]]));
+
+    $response->assertOk();
+    $response->assertJsonCount(BookController::DEFAULT_PER_PAGE, 'data');
+})->with(['abc', 0, -10]);
 
 test('includes real book data in the paginated response', function () {
     $book = Book::factory()->create();
@@ -122,11 +144,13 @@ test('returns an empty paginated response when there are no books', function () 
 });
 
 test('reports the total book count separately from the page size', function () {
-    $totalBookCount = 15;
+    $totalBookCount = 20;
+    $expectPerPage = 15;
+
     Book::factory($totalBookCount)->create();
 
     $response = $this->actingAs(User::factory()->create())
-        ->get('/book');
+        ->get('/book?'.http_build_query([['per_page' => $expectPerPage]]));
 
     $response->assertOk();
     $response->assertJsonFragment([

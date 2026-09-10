@@ -8,16 +8,28 @@ use Illuminate\Http\Request;
 
 class BookController extends Controller
 {
+    const int DEFAULT_PER_PAGE = 10;
+
+    const int MAX_PER_PAGE = 50;
+
     public function index(Request $request)
     {
+        $queryPerPage = $request->query('per_page');
+        if ($queryPerPage < 0) {
+            $perPage = self::DEFAULT_PER_PAGE;
+        } elseif ($queryPerPage > self::MAX_PER_PAGE) {
+            $perPage = self::MAX_PER_PAGE;
+        } else {
+            $perPage = $request->integer('per_page', self::DEFAULT_PER_PAGE);
+        }
+
         if ($request->query('search')) {
             $books = Book::query()
                 ->whereLike('title', $request->query('search'))
                 ->orWhereLike('author', $request->query('search'))
-                ->paginate(10);
-
+                ->paginate($perPage);
         } else {
-            $books = Book::paginate(10);
+            $books = Book::paginate($perPage);
         }
 
         return BookResource::collection($books);
