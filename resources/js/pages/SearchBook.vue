@@ -22,14 +22,11 @@ const { query, results, loading, error, belowMinimumLength, noResults } =
                 name="query"
                 v-model="query"
                 placeholder="Search books by title or author..."
-                required
             />
         </fieldset>
 
-        <div>
-            <div v-if="loading">
-                <Spinner class="m-auto" />
-            </div>
+        <div class="relative">
+            <Spinner v-if="loading" class="absolute right-2 left-2" />
             <div v-else-if="belowMinimumLength">
                 <div class="text-center text-neutral-500 italic">
                     Type at least 2 characters to search.

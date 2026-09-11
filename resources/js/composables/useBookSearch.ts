@@ -7,7 +7,7 @@ import { index } from '@/actions/App/Http/Controllers/BookController';
 import type { Book, PaginatedResponse } from '@/types';
 
 const MIN_QUERY_LENGTH = 2;
-const PER_PAGE = '5';
+const PER_PAGE = 5;
 
 export type UseBookSearchReturn = {
     query: Ref<string>;
