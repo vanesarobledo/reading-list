@@ -61,21 +61,33 @@ export function useBookSearch(): UseBookSearchReturn {
             abortController.value = fetchAbortController;
             const signal: AbortSignal = abortController.value.signal;
             const response: Response = await fetch(url, { signal });
-            const result: PaginatedResponse<Book> = await response.json();
-            console.log(url);
-            console.log(result);
-            searchResults.value = result.data;
-        } catch (e: unknown) {
-            // TODO: Better error messages
-            if (e instanceof Error && e.name === 'AbortError') {
-                return;
-            }
 
-            if (e instanceof Error) {
-                console.error(e.message);
-                error.value = e.message;
+            if (response.ok) {
+                const result: PaginatedResponse<Book> = await response.json();
+                searchResults.value = result.data;
             } else {
-                error.value = 'Error retrieving search results';
+                error.value =
+                    'Something went wrong with the server. Please try again.';
+            }
+        } catch (e: unknown) {
+            if (e instanceof Error) {
+                switch (e.name) {
+                    case 'AbortError':
+                        break;
+                    case 'TypeError':
+                        error.value =
+                            'Unable to reach the server. Check your connection.';
+                        break;
+                    case 'SyntaxError':
+                        error.value =
+                            'Received unexpected response from the server.';
+                        break;
+                    default:
+                        error.value = 'Something went wrong. Please try again.';
+                        break;
+                }
+            } else {
+                throw new Error();
             }
         } finally {
             if (abortController.value === fetchAbortController) {
