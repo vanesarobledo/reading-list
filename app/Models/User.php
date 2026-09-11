@@ -45,6 +45,9 @@ class User extends Authenticatable
         ];
     }
 
+    /**
+     * @return BelongsToMany<Book, $this, ReadingLogEntry>
+     */
     public function books(): BelongsToMany
     {
         return $this->belongstoMany(Book::class)
