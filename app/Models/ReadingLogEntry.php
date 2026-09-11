@@ -26,11 +26,17 @@ class ReadingLogEntry extends Pivot
         'finished_at' => 'date',
     ];
 
+    /**
+     * @return BelongsTo<User, $this>
+     */
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
     }
 
+    /**
+     * @return BelongsTo<Book, $this>
+     */
     public function book(): BelongsTo
     {
         return $this->belongsTo(Book::class);
