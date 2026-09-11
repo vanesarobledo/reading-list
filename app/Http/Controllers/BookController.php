@@ -26,9 +26,12 @@ class BookController extends Controller
         }
 
         if ($request->query('search')) {
+            $search = $request->query('search');
             $books = Book::query()
-                ->whereLike('title', '%'.$request->query('search').'%')
-                ->orWhereLike('author', '%'.$request->query('search').'%')
+                ->where(function ($query) use ($search) {
+                    $query->whereLike('title', "%{$search}%")
+                        ->orWhereLike('author', "%{$search}%");
+                })
                 ->paginate($perPage);
         } else {
             $books = Book::paginate($perPage);
