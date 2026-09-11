@@ -1,8 +1,13 @@
 <script setup lang="ts">
+import AlertError from '@/components/AlertError.vue';
+import { Spinner } from '@/components/ui/spinner';
 import { useBookSearch } from '@/composables/useBookSearch';
+import type { Book } from '@/types';
 
-/* loading, error, belowMinimumLength, noResults */
-const { query, results } = useBookSearch();
+const selected = defineModel<Book | null>('selected');
+
+const { query, results, loading, error, belowMinimumLength, noResults } =
+    useBookSearch();
 </script>
 
 <template>
@@ -22,12 +27,36 @@ const { query, results } = useBookSearch();
         </fieldset>
 
         <div>
-            <ul v-show="results">
-                <li v-for="result in results" :key="result.id">
-                    <input type="radio" /> {{ result.title }} by
-                    {{ result.author }}
-                </li>
-            </ul>
+            <div v-if="loading">
+                <Spinner class="m-auto" />
+            </div>
+            <div v-else-if="belowMinimumLength">
+                <div class="text-center text-neutral-500 italic">
+                    Type at least 2 characters to search.
+                </div>
+            </div>
+            <div v-else-if="error">
+                <AlertError :errors="Array(error)" title="Search Error" />
+            </div>
+            <div v-else-if="noResults">
+                <div class="text-center text-neutral-500 italic">
+                    No books found.
+                </div>
+            </div>
+            <div v-else>
+                <ul v-show="results">
+                    <li v-for="result in results" :key="result.id">
+                        <input
+                            type="radio"
+                            name="book"
+                            v-model="selected"
+                            :value="result"
+                        />
+                        {{ result.title }} by
+                        {{ result.author }}
+                    </li>
+                </ul>
+            </div>
         </div>
     </div>
 </template>
