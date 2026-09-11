@@ -4,17 +4,18 @@ namespace App\Http\Controllers;
 
 use App\Enums\Status;
 use App\Models\ReadingLogEntry;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 
 class ReadingLogEntryController extends Controller
 {
-    public function index()
-    {
-        //
-    }
+    //    public function index()
+    //    {
+    //        //
+    //    }
 
-    public function store(Request $request)
+    public function store(Request $request): RedirectResponse
     {
         $validated = $request->validate([
             'user_id' => 'required',
@@ -29,18 +30,18 @@ class ReadingLogEntryController extends Controller
         return redirect()->back();
     }
 
-    public function show(ReadingLogEntry $readingLogEntry)
-    {
-        //
-    }
+    //    public function show(ReadingLogEntry $readingLogEntry)
+    //    {
+    //        //
+    //    }
 
-    public function update(Request $request, ReadingLogEntry $readingLogEntry)
-    {
-        //
-    }
+    //    public function update(Request $request, ReadingLogEntry $readingLogEntry)
+    //    {
+    //        //
+    //    }
 
-    public function destroy(ReadingLogEntry $readingLogEntry)
-    {
-        //
-    }
+    //    public function destroy(ReadingLogEntry $readingLogEntry)
+    //    {
+    //        //
+    //    }
 }

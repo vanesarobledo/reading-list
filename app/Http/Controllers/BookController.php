@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Resources\BookResource;
 use App\Models\Book;
 use Illuminate\Http\Request;
+use Illuminate\Http\Resources\Json\JsonResource;
 
 class BookController extends Controller
 {
@@ -12,7 +13,7 @@ class BookController extends Controller
 
     const int MAX_PER_PAGE = 50;
 
-    public function index(Request $request)
+    public function index(Request $request): JsonResource
     {
         $queryPerPage = $request->query('per_page');
         if ($queryPerPage < 0) {
@@ -35,10 +36,10 @@ class BookController extends Controller
         return BookResource::collection($books);
     }
 
-    public function create()
-    {
-        //
-    }
+    //    public function create()
+    //    {
+    //        //
+    //    }
 
     public function store(Request $request)
     {
@@ -56,23 +57,23 @@ class BookController extends Controller
         return redirect()->back();
     }
 
-    public function show(string $id)
-    {
-        //
-    }
+    //    public function show(string $id)
+    //    {
+    //        //
+    //    }
 
-    public function edit(string $id)
-    {
-        //
-    }
+    //    public function edit(string $id)
+    //    {
+    //        //
+    //    }
 
-    public function update(Request $request, string $id)
-    {
-        //
-    }
+    //    public function update(Request $request, string $id)
+    //    {
+    //        //
+    //    }
 
-    public function destroy(string $id)
-    {
-        //
-    }
+    //    public function destroy(string $id)
+    //    {
+    //        //
+    //    }
 }
