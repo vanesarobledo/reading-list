@@ -2,7 +2,7 @@
 
 namespace App\Models;
 
-use App\Enums\Status;
+use App\Enums\ReadingStatus;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\Pivot;
 
@@ -10,7 +10,7 @@ class ReadingLogEntry extends Pivot
 {
     public $incrementing = true;
 
-    protected $table = 'book_user_pivot';
+    protected $table = 'book_user';
 
     protected $fillable = [
         'user_id',
@@ -21,7 +21,7 @@ class ReadingLogEntry extends Pivot
     ];
 
     protected $casts = [
-        'status' => Status::class,
+        'status' => ReadingStatus::class,
         'started_at' => 'date',
         'finished_at' => 'date',
     ];

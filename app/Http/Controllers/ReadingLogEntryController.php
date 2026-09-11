@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Enums\Status;
+use App\Enums\ReadingStatus;
 use App\Models\ReadingLogEntry;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -20,7 +20,7 @@ class ReadingLogEntryController extends Controller
         $validated = $request->validate([
             'user_id' => 'required',
             'book_id' => 'required',
-            'status' => [Rule::enum(Status::class)],
+            'status' => [Rule::enum(ReadingStatus::class)],
             'started_at' => 'nullable|date',
             'finished_at' => 'nullable|date',
         ]);

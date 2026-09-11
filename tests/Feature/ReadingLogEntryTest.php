@@ -1,6 +1,6 @@
 <?php
 
-use App\Enums\Status;
+use App\Enums\ReadingStatus;
 use App\Models\Book;
 use App\Models\ReadingLogEntry;
 use App\Models\User;
@@ -11,7 +11,7 @@ test('user can add a book to their reading log entry', function () {
     $payload = [
         'user_id' => $user->id,
         'book_id' => $book->id,
-        'status' => Status::WANT_TO_READ->value,
+        'status' => ReadingStatus::WANT_TO_READ->value,
         'started_at' => now(),
     ];
 
