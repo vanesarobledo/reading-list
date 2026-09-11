@@ -2,7 +2,7 @@
 
 namespace App\Models;
 
-use App\Enums\Status;
+use App\Enums\ReadingStatus;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\Pivot;
 
@@ -21,7 +21,7 @@ class ReadingLogEntry extends Pivot
     ];
 
     protected $casts = [
-        'status' => Status::class,
+        'status' => ReadingStatus::class,
         'started_at' => 'date',
         'finished_at' => 'date',
     ];

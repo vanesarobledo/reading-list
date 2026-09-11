@@ -1,0 +1,164 @@
+[
+    {
+        "title": "Debugging",
+        "author": "David J. Agans",
+        "publisher": "AMACOM",
+        "publication_year": 2002,
+        "isbn": "9780814474570",
+        "external_source": "open_library",
+        "external_id": "OL8043248M"
+    },
+    {
+        "title": "The Missing README",
+        "author": "Chris Riccomini and Dmitriy Ryaboy",
+        "publisher": "No Starch Press",
+        "publication_year": 2021,
+        "isbn": "9781718501836",
+        "external_source": "google_books",
+        "external_id": "M7UjEAAAQBAJ"
+    },
+    {
+        "title": "Head First Design Patterns",
+        "author": "Eric Freeman, Elisabeth Robson, Bert Bates, Kathy Sierra",
+        "publisher": "O'Reilly Media",
+        "publication_year": 2021,
+        "isbn": "9781492078005",
+        "external_source": "open_library",
+        "external_id": "OL29522846M"
+    },
+    {
+        "title": "Clean Architecture",
+        "author": "Robert C. Martin",
+        "publisher": "Pearson",
+        "publication_year": 2017,
+        "isbn": "9780134494166",
+        "external_source": "open_library",
+        "external_id": "OL34787584M"
+    },
+    {
+        "title": "Your Code as a Crime Scene",
+        "author": "Adam Tornhill",
+        "publisher": "Pragmatic Bookshelf",
+        "publication_year": 2015,
+        "isbn": "9781680500387",
+        "external_source": "google_books",
+        "external_id": "l7dDnQAACAAJ"
+    },
+    {
+        "title": "Mindset: The New Psychology of Success",
+        "author": "Carol Dweck",
+        "publisher": "Random House",
+        "publication_year": 2006,
+        "isbn": "9780345472328",
+        "external_source": "open_library",
+        "external_id": "OL3424024M"
+    },
+    {
+        "title": "Test-Driven Development",
+        "author": "Kent Beck",
+        "publisher": "Addison-Wesley",
+        "publication_year": 2003,
+        "isbn": "9780321146533",
+        "external_source": "open_library",
+        "external_id": "OL15550257M"
+    },
+    {
+        "title": "Don't Make Me Think",
+        "author": "Steve Krug",
+        "publisher": "New Riders",
+        "publication_year": 2014,
+        "isbn": "9780321965516",
+        "external_source": "open_library",
+        "external_id": "OL25650499M"
+    },
+    {
+        "title": "Mythical Man-Month",
+        "author": "Frederick Brooks Jr",
+        "publisher": "Addison-Wesley",
+        "publication_year": 1995,
+        "isbn": "9780201835953",
+        "external_source": "open_library",
+        "external_id": "OL3510570W"
+    },
+    {
+        "title": "Code Complete",
+        "author": "Steve McConnell",
+        "publisher": "Microsoft Press",
+        "publication_year": 2004,
+        "isbn": "9780735619678",
+        "external_source": "open_library",
+        "external_id": "OL34013371W"
+    },
+    {
+        "title": "Clean Code",
+        "author": "Robert Martin",
+        "publisher": "Prentice Hall",
+        "publication_year": 2008,
+        "isbn": "9780132350884",
+        "external_source": "open_library",
+        "external_id": "OL16900934M"
+    },
+    {
+        "title": "Designing Data Intense Applications",
+        "author": "Martin Kleppmann",
+        "publisher": "O'Reilly Media",
+        "publication_year": 2017,
+        "isbn": "9781449373320",
+        "external_source": "open_library",
+        "external_id": "OL19293745W"
+    },
+    {
+        "title": "The Art of Computer Programming",
+        "author": "Donald Knuth",
+        "publisher": "Addison-Wesley",
+        "publication_year": 1997,
+        "isbn": "9780201896831",
+        "external_source": "open_library",
+        "external_id": "OL657041M"
+    },
+    {
+        "title": "Refactoring",
+        "author": "Martin Fowler",
+        "publisher": "Addison-Wesley",
+        "publication_year": 2018,
+        "isbn": "9780134757599",
+        "external_source": "open_library",
+        "external_id": "OL26629721M"
+    },
+    {
+        "title": "Working Effectively with Legacy Code",
+        "author": "Michael Feathers",
+        "publisher": "Prentice Hall",
+        "publication_year": 2004,
+        "isbn": "9780131177055",
+        "external_source": "open_library",
+        "external_id": "OL34017486M"
+    },
+    {
+        "title": "The Pragmatic Programmer",
+        "author": "Andrew Hunt & David Thomas",
+        "publisher": "Addison-Wesley",
+        "publication_year": 2019,
+        "isbn": "9780135957059",
+        "external_source": "google_books",
+        "external_id": "LhOlDwAAQBAJ"
+    },
+    {
+        "title": "A Philosophy of Software Design",
+        "author": "John Ousterhout",
+        "publisher": "Yaknyam Press",
+        "publication_year": 2018,
+        "isbn": "9781732102200",
+        "external_source": "open_library",
+        "external_id": "OL28736729M"
+    },
+    {
+        "title": "Code: The Hidden Language of Computer Hardware and Software",
+        "author": "Charles Petzold",
+        "publisher": "Microsoft Press",
+        "publication_year": 2022,
+        "isbn": "9780137909100",
+        "external_source": "open_library",
+        "external_id": "OL1972516W"
+    }
+]

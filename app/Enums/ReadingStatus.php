@@ -1,6 +1,8 @@
 <?php
+
 namespace App\Enums;
-enum Status: string
+
+enum ReadingStatus: string
 {
     case WANT_TO_READ = 'want_to_read';
     case READING = 'reading';

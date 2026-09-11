@@ -8,7 +8,7 @@ return new class extends Migration
 {
     public function up(): void
     {
-        Schema::create('book_user_pivot', function (Blueprint $table) {
+        Schema::create('book_user', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->constrained()->cascadeOnDelete();
             $table->foreignId('book_id')->constrained()->cascadeOnDelete();
@@ -19,6 +19,7 @@ return new class extends Migration
             $table->timestamps();
         });
     }
+
     public function down(): void
     {
         Schema::dropIfExists('book_user_pivot');
