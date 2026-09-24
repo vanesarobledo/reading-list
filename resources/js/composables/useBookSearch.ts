@@ -4,7 +4,7 @@ import { onScopeDispose } from 'vue';
 import { computed } from 'vue';
 import { ref, watch } from 'vue';
 import { index } from '@/actions/App/Http/Controllers/BookController';
-import type { Book, PaginatedResponse } from '@/types';
+import type { Book, BookSearchError, PaginatedResponse } from '@/types';
 
 const MIN_QUERY_LENGTH = 2;
 const PER_PAGE = 5;
@@ -13,7 +13,7 @@ export type UseBookSearchReturn = {
     query: Ref<string>;
     results: Ref<Array<Book>>;
     loading: Ref<boolean>;
-    error: Ref<string | null>;
+    error: Ref<BookSearchError | null>;
     belowMinimumLength: ComputedRef<boolean>;
     noResults: ComputedRef<boolean>;
 };
@@ -22,7 +22,8 @@ export function useBookSearch(): UseBookSearchReturn {
     const searchResults: Ref<Array<Book>> = ref([]);
     const debounced = refDebounced(searchQuery, 300);
     const loading = ref(false);
-    const error: Ref<string | null> = ref(null);
+    const error: Ref<BookSearchError | null> = ref(null);
+
     const belowMinimumLength = computed(() => {
         return searchQuery.value.length < MIN_QUERY_LENGTH;
     });
@@ -66,8 +67,7 @@ export function useBookSearch(): UseBookSearchReturn {
                 const result: PaginatedResponse<Book> = await response.json();
                 searchResults.value = result.data;
             } else {
-                error.value =
-                    'Something went wrong with the server. Please try again.';
+                error.value = 'server';
             }
         } catch (e: unknown) {
             if (e instanceof Error) {
@@ -75,15 +75,13 @@ export function useBookSearch(): UseBookSearchReturn {
                     case 'AbortError':
                         break;
                     case 'TypeError':
-                        error.value =
-                            'Unable to reach the server. Check your connection.';
+                        error.value = 'network';
                         break;
                     case 'SyntaxError':
-                        error.value =
-                            'Received unexpected response from the server.';
+                        error.value = 'parse';
                         break;
                     default:
-                        error.value = 'Something went wrong. Please try again.';
+                        error.value = 'default';
                         break;
                 }
             } else {
