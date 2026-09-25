@@ -50,7 +50,7 @@ const errorMessages: Record<BookSearchError, string> = {
                 </div>
             </div>
             <div v-else>
-                <ul v-show="results">
+                <ul v-show="results.length">
                     <li v-for="result in results" :key="result.id">
                         <input
                             type="radio"
