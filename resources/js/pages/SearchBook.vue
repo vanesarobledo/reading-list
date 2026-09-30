@@ -23,10 +23,11 @@ const errorMessages: Record<BookSearchError, string> = {
         >
             <legend class="text-lg font-bold">Search for a Book</legend>
             <input
-                type="text"
+                type="search"
                 class="flex-2 rounded-md border border-neutral-300 p-2"
                 name="query"
                 v-model="query"
+                aria-label="Search books by title or author"
                 placeholder="Search books by title or author..."
             />
         </fieldset>
