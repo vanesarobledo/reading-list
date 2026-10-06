@@ -50,3 +50,17 @@ test('user can add duplicate entries to their reading log', function () {
 
     $response2->assertRedirectBack();
 });
+
+test('user can only add a real book id to their reading log entry', function () {
+    $user = User::factory()->create();
+    $invalidBook = [
+        'book_id' => 9999,
+        'status' => ReadingStatus::WANT_TO_READ->value,
+    ];
+
+    $response = $this->actingAs($user)
+        ->post('/reading-log', $invalidBook);
+
+    $response->assertRedirectBack();
+    $this->assertDatabaseMissing((new ReadingLogEntry)->getTable(), $invalidBook);
+});
