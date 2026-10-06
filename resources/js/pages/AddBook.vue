@@ -94,7 +94,7 @@ const showAddBook = ref(false);
                 <input
                     type="text"
                     class="rounded-md border border-neutral-300 p-1"
-                    name="ISBN"
+                    name="isbn"
                 />
                 <div v-if="errors.isbn" class="error">
                     {{ errors.isbn }}
