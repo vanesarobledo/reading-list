@@ -17,15 +17,20 @@ class ReadingLogEntryController extends Controller
 
     public function store(Request $request): RedirectResponse
     {
+        $user = auth()->user();
+
         $validated = $request->validate([
-            'user_id' => 'required',
             'book_id' => 'required',
             'status' => [Rule::enum(ReadingStatus::class)],
             'started_at' => 'nullable|date',
             'finished_at' => 'nullable|date',
         ]);
 
-        ReadingLogEntry::create($validated);
+        ReadingLogEntry::create(
+            [...$validated,
+                'user_id' => $user->id,
+            ]
+        );
 
         return redirect()->back();
     }
