@@ -34,18 +34,19 @@ test('user can add duplicate entries to their reading log', function () {
     $user = User::factory()->create();
     $status = ReadingStatus::WANT_TO_READ->value;
 
-    $this->actingAs($user)
+    $response1 = $this->actingAs($user)
         ->post('/reading-log', [
             'book_id' => $book->id,
             'status' => $status,
         ]);
 
-    $this->actingAs($user)
+    $response1->assertRedirectBack();
+
+    $response2 = $this->actingAs($user)
         ->post('/reading-log', [
             'book_id' => $book->id,
             'status' => $status,
         ]);
 
-    $response->assertRedirectBack();
-
+    $response2->assertRedirectBack();
 });
