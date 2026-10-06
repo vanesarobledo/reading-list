@@ -50,13 +50,12 @@ class BookController extends Controller
         $validated = $request->validate([
             'title' => 'required',
             'author' => 'required',
+            'publisher' => 'sometimes',
             'isbn' => 'sometimes',
             'publication_year' => 'nullable|integer',
             'external_source' => 'sometimes',
             'external_id' => 'sometimes',
         ]);
-
-        Book::create($validated);
 
         return redirect()->back();
     }
