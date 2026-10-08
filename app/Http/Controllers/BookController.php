@@ -61,7 +61,13 @@ class BookController extends Controller
         $createdBook = Book::create($validated);
         $book = BookResource::make($createdBook)->resolve();
 
-        return Inertia::flash('book', $book)->back();
+        return Inertia::flash([
+            'book' => $book,
+            'toast' => [
+                'type' => 'success',
+                'message' => 'Book added!',
+            ],
+        ])->back();
     }
 
     //    public function show(string $id)

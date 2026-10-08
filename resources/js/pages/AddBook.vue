@@ -1,9 +1,20 @@
 <script setup lang="ts">
+import type { Page } from '@inertiajs/core';
 import { Form } from '@inertiajs/vue3';
 import { ref } from 'vue';
 import { store } from '@/actions/App/Http/Controllers/BookController';
+import type { Book } from '@/types';
+
+const selected = defineModel<Book | null>('selected');
 
 const showAddBook = ref(false);
+
+const onSuccess = (page: Page) => {
+    if (page.flash.book) {
+        selected.value = page.flash.book;
+        showAddBook.value = false;
+    }
+};
 </script>
 
 <template>
@@ -22,7 +33,8 @@ const showAddBook = ref(false);
         class="flex flex-col gap-4"
         :action="store()"
         v-show="showAddBook"
-        #default="{ errors, processing, wasSuccessful }"
+        #default="{ errors, processing }"
+        @success="onSuccess"
         resetOnSuccess
     >
         <fieldset
@@ -117,6 +129,5 @@ const showAddBook = ref(false);
                 Close
             </button>
         </div>
-        <div v-if="wasSuccessful">Book added to database successfully!</div>
     </Form>
 </template>
