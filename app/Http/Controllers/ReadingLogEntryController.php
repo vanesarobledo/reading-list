@@ -4,9 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Enums\ReadingStatus;
 use App\Models\ReadingLogEntry;
-use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 
 class ReadingLogEntryController extends Controller
 {
