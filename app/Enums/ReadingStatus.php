@@ -12,7 +12,7 @@ enum ReadingStatus: string
     public function label(): string
     {
         return match ($this) {
-            self::WANT_TO_READ => 'want_to_read',
+            self::WANT_TO_READ => 'want to read',
             self::READING => 'reading',
             self::FINISHED => 'finished',
             self::ABANDONED => 'abandoned',
