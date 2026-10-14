@@ -3,9 +3,12 @@
 namespace App\Http\Controllers;
 
 use App\Enums\ReadingStatus;
+use App\Http\Resources\BookResource;
+use App\Models\Book;
 use App\Models\ReadingLogEntry;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
+use Inertia\Inertia;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 
 class ReadingLogEntryController extends Controller
@@ -26,13 +29,19 @@ class ReadingLogEntryController extends Controller
             'finished_at' => 'nullable|date',
         ]);
 
-        ReadingLogEntry::create(
+        $createdReadingLogEntry = ReadingLogEntry::create(
             [...$validated,
                 'user_id' => $user->id,
             ]
         );
+        $book = BookResource::make(Book::query()->where('id', '=', $createdReadingLogEntry->book_id)->first())->resolve();
 
-        return redirect()->back();
+        return Inertia::flash([
+            'toast' => [
+                'type' => 'success',
+                'message' => $book['title'].' added to reading log',
+            ],
+        ])->back();
     }
 
     //    public function show(ReadingLogEntry $readingLogEntry)

@@ -26,6 +26,8 @@ test('user can add a book to their reading log entry', function () {
         ->post('/reading-log', $payload);
 
     $response->assertRedirectBack();
+    $response->assertInertiaFlash('toast');
+    $response->assertInertiaFlash('toast.message', $book->title.' added to reading log');
     $this->assertDatabaseHas((new ReadingLogEntry)->getTable(), $readingLog);
 });
 
