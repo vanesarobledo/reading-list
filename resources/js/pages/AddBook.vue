@@ -43,13 +43,14 @@ const onSuccess = (page: Page) => {
             <legend class="text-lg font-bold">Add a Book Manually</legend>
             <div class="flex flex-col">
                 <div>
-                    <label class="font-bold">Title</label>
+                    <label class="font-bold" for="title">Title</label>
                     <em aria-label="required">*</em>
                 </div>
                 <input
                     type="text"
                     class="rounded-md border border-neutral-300 p-1"
                     name="title"
+                    id="title"
                     required
                 />
                 <div v-if="errors.title" class="error">
@@ -58,13 +59,14 @@ const onSuccess = (page: Page) => {
             </div>
             <div class="flex flex-col">
                 <div>
-                    <label class="font-bold">Author</label
+                    <label class="font-bold" for="author">Author</label
                     ><em aria-label="required">*</em>
                 </div>
                 <input
                     type="text"
                     class="rounded-md border border-neutral-300 p-1"
                     name="author"
+                    id="author"
                     required
                 />
                 <div v-if="errors.author" class="error">
@@ -74,12 +76,15 @@ const onSuccess = (page: Page) => {
             <div class="flex gap-3">
                 <div class="flex grow flex-col">
                     <div>
-                        <label class="font-bold">Publisher</label>
+                        <label class="font-bold" for="publisher"
+                            >Publisher</label
+                        >
                     </div>
                     <input
                         type="text"
                         class="rounded-md border border-neutral-300 p-1"
                         name="publisher"
+                        id="publisher"
                     />
                     <div v-if="errors.publisher" class="error">
                         {{ errors.publisher }}
@@ -87,12 +92,15 @@ const onSuccess = (page: Page) => {
                 </div>
                 <div class="flex grow-0 flex-col">
                     <div>
-                        <label class="font-bold">Publication Year</label>
+                        <label class="font-bold" for="publication_year"
+                            >Publication Year</label
+                        >
                     </div>
                     <input
                         type="number"
                         class="rounded-md border border-neutral-300 p-1"
                         name="publication_year"
+                        id="publication_year"
                     />
                     <div v-if="errors.publication_year" class="error">
                         {{ errors.publication_year }}
@@ -101,12 +109,13 @@ const onSuccess = (page: Page) => {
             </div>
             <div class="flex flex-col">
                 <div>
-                    <label class="font-bold">ISBN</label>
+                    <label class="font-bold" for="isbn">ISBN</label>
                 </div>
                 <input
                     type="text"
                     class="rounded-md border border-neutral-300 p-1"
                     name="isbn"
+                    id="isbn"
                 />
                 <div v-if="errors.isbn" class="error">
                     {{ errors.isbn }}
