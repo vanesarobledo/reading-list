@@ -43,18 +43,20 @@ const onSuccess = () => {
                         ><em aria-label="required">*</em>
                     </div>
                     <input
-                        type="text"
-                        class="rounded-md border border-neutral-300 bg-neutral-100 p-1"
-                        :value="
+                        type="hidden"
+                        name="book_id"
+                        :value="selectedBook?.id"
+                        required
+                    />
+                    <div>
+                        {{
                             selectedBook
                                 ? selectedBook.title +
                                   ' by ' +
                                   selectedBook.author
-                                : ''
-                        "
-                        placeholder="Search or add a book"
-                        disabled
-                    />
+                                : '(Search or add a book)'
+                        }}
+                    </div>
                 </div>
                 <div class="flex flex-col">
                     <div>
@@ -104,20 +106,20 @@ const onSuccess = () => {
                 <div v-if="errors.finished_at" class="error">
                     {{ errors.finished_at }}
                 </div>
+                <div class="flex justify-between">
+                    <button
+                        type="submit"
+                        class="w-1/4 rounded-md bg-neutral-300 p-3 font-bold hover:bg-black hover:text-white"
+                        :disabled="processing"
+                    >
+                        {{
+                            processing
+                                ? 'Adding Reading Log Entry...'
+                                : 'Add Reading Log Entry'
+                        }}
+                    </button>
+                </div>
             </fieldset>
-            <div class="flex justify-between">
-                <button
-                    type="submit"
-                    class="w-1/4 rounded-md bg-neutral-300 p-3 font-bold hover:bg-black hover:text-white"
-                    :disabled="processing"
-                >
-                    {{
-                        processing
-                            ? 'Adding Reading Log Entry...'
-                            : 'Add Reading Log Entry'
-                    }}
-                </button>
-            </div>
         </Form>
     </div>
 </template>
