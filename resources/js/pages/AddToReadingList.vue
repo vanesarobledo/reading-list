@@ -39,16 +39,20 @@ const onSuccess = () => {
                 <legend class="text-lg font-bold">Add to Reading List</legend>
                 <div class="flex flex-col">
                     <div>
-                        <label class="font-bold">Book</label
+                        <label class="font-bold" for="book_id">Book</label
                         ><em aria-label="required">*</em>
                     </div>
                     <input
                         type="hidden"
                         name="book_id"
+                        id="book_id"
                         :value="selectedBook?.id"
-                        required
                     />
-                    <div>
+                    <span v-if="errors.book_id" class="error">
+                        Search or add a book first to add it to your reading
+                        log.
+                    </span>
+                    <output v-else>
                         {{
                             selectedBook
                                 ? selectedBook.title +
@@ -56,16 +60,17 @@ const onSuccess = () => {
                                   selectedBook.author
                                 : '(Search or add a book)'
                         }}
-                    </div>
+                    </output>
                 </div>
                 <div class="flex flex-col">
                     <div>
-                        <label class="font-bold">Status</label
+                        <label class="font-bold" for="status">Status</label
                         ><em aria-label="required">*</em>
                     </div>
                     <select
                         class="rounded-md border border-neutral-300 p-1"
                         name="status"
+                        id="status"
                         required
                     >
                         <option
@@ -82,26 +87,32 @@ const onSuccess = () => {
                 </div>
                 <div class="flex flex-col">
                     <div>
-                        <label class="font-bold">Started Reading</label>
+                        <label class="font-bold" for="started_at"
+                            >Started Reading</label
+                        >
                     </div>
                 </div>
                 <input
                     type="date"
                     class="rounded-md border border-neutral-300 p-1"
                     name="started_at"
+                    id="started_at"
                 />
                 <div v-if="errors.started_at" class="error">
                     {{ errors.started_at }}
                 </div>
                 <div class="flex flex-col">
                     <div>
-                        <label class="font-bold">Finished Reading</label>
+                        <label class="font-bold" for="finished_at"
+                            >Finished Reading</label
+                        >
                     </div>
                 </div>
                 <input
                     type="date"
                     class="rounded-md border border-neutral-300 p-1"
                     name="finished_at"
+                    id="finished_at"
                 />
                 <div v-if="errors.finished_at" class="error">
                     {{ errors.finished_at }}
