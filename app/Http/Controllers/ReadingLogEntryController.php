@@ -4,9 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Enums\ReadingStatus;
 use App\Models\ReadingLogEntry;
-use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 
 class ReadingLogEntryController extends Controller
 {
@@ -17,15 +17,20 @@ class ReadingLogEntryController extends Controller
 
     public function store(Request $request): RedirectResponse
     {
+        $user = auth()->user();
+
         $validated = $request->validate([
-            'user_id' => 'required',
-            'book_id' => 'required',
+            'book_id' => ['required', Rule::exists('books', 'id')],
             'status' => [Rule::enum(ReadingStatus::class)],
             'started_at' => 'nullable|date',
             'finished_at' => 'nullable|date',
         ]);
 
-        ReadingLogEntry::create($validated);
+        ReadingLogEntry::create(
+            [...$validated,
+                'user_id' => $user->id,
+            ]
+        );
 
         return redirect()->back();
     }

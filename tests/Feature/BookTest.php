@@ -15,6 +15,11 @@ test('can store a book', function () {
         ->post('/book', $payload);
 
     $response->assertRedirectBack();
+    $response->assertInertiaFlash('book');
+    $response->assertInertiaFlash('book.id', Book::first()->id);
+    $response->assertInertiaFlash('book.title', $payload['title']);
+    $response->assertInertiaFlash('book.author', $payload['author']);
+
     $this->assertDatabaseHas('books', $payload);
 });
 
