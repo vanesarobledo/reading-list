@@ -1,4 +1,5 @@
-type Status = 'want_to_read' | 'reading' | 'finished' | 'abandoned';
+export type ReadingStatus =
+    'want_to_read' | 'reading' | 'finished' | 'abandoned';
 
 export type ReadingLogEntry = {
     id: number;
@@ -6,7 +7,7 @@ export type ReadingLogEntry = {
     author: string;
     isbn: string;
     publication_year: number;
-    status: Status;
+    status: ReadingStatus;
     started_at: string;
     finished_at: string;
 };

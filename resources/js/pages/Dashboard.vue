@@ -17,6 +17,7 @@ defineOptions({
 
 defineProps<{
     readingLogEntries: Array<ReadingLogEntry>;
+    readingLogEntryStatuses: Array<any>;
 }>();
 </script>
 
@@ -26,7 +27,7 @@ defineProps<{
         <div
             class="min-h-screen flex-1 rounded-xl border p-4 md:min-h-min dark:border-sidebar-border"
         >
-            <AddToReadingList />
+            <AddToReadingList :statuses="readingLogEntryStatuses" />
         </div>
         <div
             class="min-h-screen flex-1 rounded-xl border p-4 md:min-h-min dark:border-sidebar-border"
