@@ -19,6 +19,9 @@ enum ReadingStatus: string
         };
     }
 
+    /**
+     * @return array<int, array<string, string>>
+     */
     public static function options(): array
     {
         return array_map(fn ($case) => [
