@@ -3,25 +3,22 @@ import { Form } from '@inertiajs/vue3';
 import type { Ref } from 'vue';
 import { ref } from 'vue';
 import { store } from '@/actions/App/Http/Controllers/ReadingLogEntryController';
-import type { Book } from '@/types';
+import type { Book, ReadingLogEntry } from '@/types';
 import AddBook from './AddBook.vue';
 import SearchBook from './SearchBook.vue';
 
 defineProps<{
+    readingLogEntries: Array<ReadingLogEntry>;
     statuses: Array<any>;
 }>();
 
 const selectedBook: Ref<Book | null> = ref(null);
-
-const onSuccess = () => {
-    //
-};
 </script>
 
 <template>
-    <h2 class="mb-4 text-2xl">Add to Reading List</h2>
+    <h2 class="mb-4 text-2xl">Add a Book to Your Reading List</h2>
 
-    <div class="flex flex-col gap-4">
+    <div class="flex flex-col gap-6">
         <SearchBook v-model:selected="selectedBook" />
 
         <AddBook v-model:selected="selectedBook" />
@@ -30,37 +27,41 @@ const onSuccess = () => {
             class="flex flex-col gap-4"
             :action="store()"
             #default="{ errors, processing }"
-            @success="onSuccess"
             resetOnSuccess
         >
             <fieldset
                 class="flex flex-col gap-2 rounded-lg border border-neutral-200 p-3 shadow-md"
             >
                 <legend class="text-lg font-bold">Add to Reading List</legend>
-                <div class="flex flex-col">
+                <div class="flex gap-4">
                     <div>
-                        <label class="font-bold" for="book_id">Book</label
-                        ><em aria-label="required">*</em>
+                        <label class="font-bold" for="book_id">Book</label>
+                        <em aria-label="required">*</em>
                     </div>
-                    <input
-                        type="hidden"
-                        name="book_id"
-                        id="book_id"
-                        :value="selectedBook?.id"
-                    />
-                    <span v-if="errors.book_id" class="error">
-                        Search or add a book first to add it to your reading
-                        log.
-                    </span>
-                    <output v-else>
-                        {{
-                            selectedBook
-                                ? selectedBook.title +
-                                  ' by ' +
-                                  selectedBook.author
-                                : '(Search or add a book)'
-                        }}
-                    </output>
+                    <div class="flex flex-2 grow flex-col gap-2">
+                        <input
+                            type="hidden"
+                            name="book_id"
+                            id="book_id"
+                            :value="selectedBook?.id"
+                        />
+                        <span v-if="errors.book_id" class="error">
+                            Search or add a book first to add it to your reading
+                            log.
+                        </span>
+                        <span
+                            v-else
+                            class="rounded-md border border-neutral-300 p-1"
+                        >
+                            {{
+                                selectedBook
+                                    ? selectedBook.title +
+                                      ' by ' +
+                                      selectedBook.author
+                                    : '(Search or add a book)'
+                            }}
+                        </span>
+                    </div>
                 </div>
                 <div class="flex flex-col">
                     <div>
@@ -88,7 +89,7 @@ const onSuccess = () => {
                 <div class="flex flex-col">
                     <div>
                         <label class="font-bold" for="started_at"
-                            >Started Reading</label
+                            >Started Reading at</label
                         >
                     </div>
                 </div>
@@ -104,7 +105,7 @@ const onSuccess = () => {
                 <div class="flex flex-col">
                     <div>
                         <label class="font-bold" for="finished_at"
-                            >Finished Reading</label
+                            >Finished Reading at</label
                         >
                     </div>
                 </div>
@@ -120,7 +121,7 @@ const onSuccess = () => {
                 <div class="flex justify-between">
                     <button
                         type="submit"
-                        class="w-1/4 rounded-md bg-neutral-300 p-3 font-bold hover:bg-black hover:text-white"
+                        class="rounded-md bg-neutral-300 p-3 font-bold hover:bg-black hover:text-white"
                         :disabled="processing"
                     >
                         {{

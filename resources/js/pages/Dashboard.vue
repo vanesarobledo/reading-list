@@ -27,7 +27,10 @@ defineProps<{
         <div
             class="min-h-screen flex-1 rounded-xl border p-4 md:min-h-min dark:border-sidebar-border"
         >
-            <AddToReadingList :statuses="readingLogEntryStatuses" />
+            <AddToReadingList
+                :readingLogEntries="readingLogEntries"
+                :statuses="readingLogEntryStatuses"
+            />
         </div>
         <div
             class="min-h-screen flex-1 rounded-xl border p-4 md:min-h-min dark:border-sidebar-border"

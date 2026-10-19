@@ -61,5 +61,7 @@ test('authenticated users see their books in the dashboard', function () {
         ->component('Dashboard')
         ->has('readingLogEntries', 3)
         ->where('readingLogEntries.0.status', $readingLog->first()->status)
+        ->where('readingLogEntries.0.id', $readingLog[0]->id)
+        ->where('readingLogEntries.0.book_id', $books[0]->id)
     );
 });

@@ -3,6 +3,7 @@ export type ReadingStatus =
 
 export type ReadingLogEntry = {
     id: number;
+    book_id: number;
     title: string;
     author: string;
     isbn: string;

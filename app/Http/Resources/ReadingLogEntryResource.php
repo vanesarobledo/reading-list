@@ -22,7 +22,8 @@ class ReadingLogEntryResource extends JsonResource
     public function toArray(Request $request): array
     {
         return [
-            'id' => $this->id,
+            'id' => $this->pivot->id,
+            'book_id' => $this->id,
             'title' => $this->title,
             'author' => $this->author,
             'isbn' => $this->isbn,
