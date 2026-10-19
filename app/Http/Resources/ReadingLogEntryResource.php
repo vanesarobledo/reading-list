@@ -28,6 +28,7 @@ class ReadingLogEntryResource extends JsonResource
             'isbn' => $this->isbn,
             'publication_year' => $this->publication_year,
             'status' => $this->pivot->status,
+            'status_label' => $this->pivot->status->label(),
             'started_at' => $this->pivot->started_at,
             'finished_at' => $this->pivot->finished_at,
         ];

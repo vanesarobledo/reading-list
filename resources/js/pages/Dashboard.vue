@@ -33,7 +33,7 @@ defineProps<{
             class="min-h-screen flex-1 rounded-xl border p-4 md:min-h-min dark:border-sidebar-border"
         >
             <h1 class="text-2xl">Reading List</h1>
-            <ul v-if="readingLogEntries.length > 0" class="flex flex-col gap-4">
+            <ul v-if="readingLogEntries.length > 0" class="flex flex-col gap-2">
                 <li
                     v-for="readingLogEntry in readingLogEntries"
                     :key="readingLogEntry.id"
@@ -49,7 +49,7 @@ defineProps<{
                     <div
                         class="m-1 block rounded-2xl bg-neutral-100 p-2 text-sm uppercase"
                     >
-                        {{ readingLogEntry.status }}
+                        {{ readingLogEntry.status_label }}
                     </div>
                 </li>
             </ul>

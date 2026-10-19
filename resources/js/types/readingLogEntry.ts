@@ -8,6 +8,7 @@ export type ReadingLogEntry = {
     isbn: string;
     publication_year: number;
     status: ReadingStatus;
+    status_label: string;
     started_at: string;
     finished_at: string;
 };
