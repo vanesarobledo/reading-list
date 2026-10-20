@@ -55,16 +55,16 @@ test('user can add duplicate entries to their reading log', function () {
 
 test('user can only add a real book id to their reading log entry', function () {
     $user = User::factory()->create();
-    $invalidBook = [
+    $payload = [
         'book_id' => 9999,
         'status' => ReadingStatus::WANT_TO_READ->value,
     ];
 
     $response = $this->actingAs($user)
-        ->post('/reading-log', $invalidBook);
+        ->post('/reading-log', $payload);
 
-    $response->assertRedirectBack();
-    $this->assertDatabaseMissing((new ReadingLogEntry)->getTable(), $invalidBook);
+    $response->assertSessionHasErrors('book_id');
+    $this->assertDatabaseCount((new ReadingLogEntry)->getTable(), 0);
 });
 
 test('rejects a reading log entry without a required field', function (string $field) {
