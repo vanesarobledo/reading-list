@@ -2,7 +2,7 @@
 import { Head } from '@inertiajs/vue3';
 import AddToReadingList from '@/pages/AddToReadingList.vue';
 import { dashboard } from '@/routes';
-import type { ReadingLogEntry } from '@/types';
+import type { ReadingLogEntry, ReadingStatus } from '@/types';
 
 defineOptions({
     layout: {
@@ -17,7 +17,10 @@ defineOptions({
 
 defineProps<{
     readingLogEntries: Array<ReadingLogEntry>;
-    readingLogEntryStatuses: Array<any>;
+    readingLogEntryStatuses: Array<{
+        label: string;
+        value: ReadingStatus;
+    }>;
 }>();
 </script>
 
