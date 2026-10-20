@@ -25,7 +25,7 @@ test('user can add a book to their reading log entry', function () {
     $response = $this->actingAs($user)
         ->post('/reading-log', $payload);
 
-    $response->assertRedirectBack();
+    $response->assertValid()->assertRedirectBack();
     $response->assertInertiaFlash('toast');
     $response->assertInertiaFlash('toast.message', $book->title.' added to reading log');
     $this->assertDatabaseHas((new ReadingLogEntry)->getTable(), $readingLog);
@@ -42,7 +42,7 @@ test('user can add duplicate entries to their reading log', function () {
             'status' => $status,
         ]);
 
-    $response1->assertRedirectBack();
+    $response1->assertValid();
 
     $response2 = $this->actingAs($user)
         ->post('/reading-log', [
@@ -50,7 +50,9 @@ test('user can add duplicate entries to their reading log', function () {
             'status' => $status,
         ]);
 
-    $response2->assertRedirectBack();
+    $response2->assertValid();
+
+    $this->assertDatabaseCount((new ReadingLogEntry)->getTable(), 2);
 });
 
 test('user can only add a real book id to their reading log entry', function () {
