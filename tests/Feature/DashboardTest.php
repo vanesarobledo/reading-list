@@ -5,6 +5,7 @@ use App\Models\Book;
 use App\Models\ReadingLogEntry;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Sequence;
+use Illuminate\Support\Collection;
 use Inertia\Testing\AssertableInertia;
 
 test('guests are redirected to the login page', function () {
@@ -60,8 +61,12 @@ test('authenticated users see their books in the dashboard', function () {
     $response->assertInertia(fn (AssertableInertia $page) => $page
         ->component('Dashboard')
         ->has('readingLogEntries', 3)
-        ->where('readingLogEntries.0.status', $readingLog->first()->status)
-        ->where('readingLogEntries.0.id', $readingLog[0]->id)
-        ->where('readingLogEntries.0.book_id', $books[0]->id)
+        ->where('readingLogEntries', fn (Collection $entries) => $readingLog->every(
+            fn (ReadingLogEntry $seeded) => $entries->contains(
+                fn (array $entry) => $entry['book_id'] === $seeded->book_id
+                    && $entry['status'] === $seeded->status->value
+            )
+        )
+        )
     );
 });
