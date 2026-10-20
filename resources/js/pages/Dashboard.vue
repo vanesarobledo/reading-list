@@ -28,7 +28,7 @@ defineProps<{
     <Head title="Dashboard" />
     <div class="flex h-full flex-1 flex-col gap-4 rounded-xl p-4">
         <div
-            class="min-h-screen flex-1 rounded-xl border p-4 md:min-h-min dark:border-sidebar-border"
+            class="min-h-min flex-1 rounded-xl border p-4 dark:border-sidebar-border"
         >
             <AddToReadingList
                 :readingLogEntries="readingLogEntries"
@@ -36,7 +36,7 @@ defineProps<{
             />
         </div>
         <div
-            class="min-h-screen flex-1 rounded-xl border p-4 md:min-h-min dark:border-sidebar-border"
+            class="min-h-min flex-1 rounded-xl border p-4 dark:border-sidebar-border"
         >
             <h1 class="text-2xl">Reading List</h1>
             <ul v-if="readingLogEntries.length > 0" class="flex flex-col gap-2">
