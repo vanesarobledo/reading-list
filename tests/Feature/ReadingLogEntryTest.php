@@ -67,18 +67,22 @@ test('user can only add a real book id to their reading log entry', function () 
     $this->assertDatabaseMissing((new ReadingLogEntry)->getTable(), $invalidBook);
 });
 
-test('user is required to add a status to their reading log entry', function () {
+test('rejects a reading log entry without a required field', function (string $field) {
     $book = Book::factory()->create();
     $user = User::factory()->create();
 
     $payload = [
         'book_id' => $book->id,
-        'started_at' => now(),
+        'status' => ReadingStatus::WANT_TO_READ->value,
     ];
+    unset($payload[$field]);
 
     $response = $this->actingAs($user)
         ->post('/reading-log', $payload);
 
-    $response->assertSessionHasErrors('status');
+    $response->assertSessionHasErrors($field);
     $this->assertDatabaseCount((new ReadingLogEntry)->getTable(), 0);
-});
+})->with([
+    'missing book id' => ['book_id'],
+    'missing status' => ['status'],
+]);
