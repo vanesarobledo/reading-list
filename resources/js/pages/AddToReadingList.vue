@@ -27,6 +27,11 @@ const isDuplicateEntry = computed(() => {
             readingLogEntry.book_id === selectedBook.value?.id,
     );
 });
+
+const onSuccess = () => {
+    selectedBook.value = null;
+    formStatus.value = null;
+};
 </script>
 
 <template>
@@ -41,7 +46,8 @@ const isDuplicateEntry = computed(() => {
             class="flex flex-col gap-4"
             :action="store()"
             #default="{ errors, processing }"
-            resetOnSuccess
+            @success="onSuccess"
+            :reset-on-success="['started_at', 'finished_at']"
         >
             <fieldset
                 class="flex flex-col gap-2 rounded-lg border border-neutral-200 p-3 shadow-md"
