@@ -23,7 +23,11 @@ test('authenticated users can visit the dashboard', function () {
 
 test('authenticated users see their books in the dashboard', function () {
     $user = User::factory()->create();
+    $unrelatedBook = Book::factory()->create();
+    // Create two more books to offset book IDs
+    Book::factory()->count(2)->create();
     $books = Book::factory()->count(3)->create();
+
     $readingLog = ReadingLogEntry::factory()
         ->count(3)
         ->state(new Sequence(
@@ -47,9 +51,8 @@ test('authenticated users see their books in the dashboard', function () {
         ->create();
 
     $unrelatedUser = User::factory()->create();
-    $unrelatedBooks = Book::factory()->create();
     ReadingLogEntry::factory()->create([
-        'book_id' => $unrelatedBooks->id,
+        'book_id' => $unrelatedBook->id,
         'user_id' => $unrelatedUser->id,
         'status' => ReadingStatus::READING->value,
     ]);
@@ -63,8 +66,9 @@ test('authenticated users see their books in the dashboard', function () {
         ->has('readingLogEntries', 3)
         ->where('readingLogEntries', fn (Collection $entries) => $readingLog->every(
             fn (ReadingLogEntry $seeded) => $entries->contains(
-                fn (array $entry) => $entry['book_id'] === $seeded->book_id
-                    && $entry['status'] === $seeded->status->value
+                fn (array $entry) => $entry['id'] === $seeded->id &&
+                    $entry['book']['id'] === $seeded->book_id &&
+                    $entry['status'] === $seeded->status->value
             )
         )
         )
