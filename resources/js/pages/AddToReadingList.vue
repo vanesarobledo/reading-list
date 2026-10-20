@@ -1,18 +1,32 @@
 <script setup lang="ts">
 import { Form } from '@inertiajs/vue3';
 import type { Ref } from 'vue';
+import { computed } from 'vue';
 import { ref } from 'vue';
 import { store } from '@/actions/App/Http/Controllers/ReadingLogEntryController';
+import InputError from '@/components/InputError.vue';
 import type { Book, ReadingLogEntry } from '@/types';
 import AddBook from './AddBook.vue';
 import SearchBook from './SearchBook.vue';
 
-defineProps<{
+const props = defineProps<{
     readingLogEntries: Array<ReadingLogEntry>;
     statuses: Array<any>;
 }>();
 
 const selectedBook: Ref<Book | null> = ref(null);
+const formStatus: Ref<string | null> = ref(null);
+const isDuplicateEntry = computed(() => {
+    if (selectedBook.value == null) {
+        return false;
+    }
+
+    return props.readingLogEntries.some(
+        (readingLogEntry: ReadingLogEntry) =>
+            readingLogEntry.status === formStatus.value &&
+            readingLogEntry.book_id === selectedBook.value?.id,
+    );
+});
 </script>
 
 <template>
@@ -72,6 +86,7 @@ const selectedBook: Ref<Book | null> = ref(null);
                         class="rounded-md border border-neutral-300 p-1"
                         name="status"
                         id="status"
+                        v-model="formStatus"
                         required
                     >
                         <option
@@ -85,6 +100,10 @@ const selectedBook: Ref<Book | null> = ref(null);
                     <div v-if="errors.status" class="error">
                         {{ errors.status }}
                     </div>
+                    <InputError
+                        v-if="isDuplicateEntry"
+                        message="You have already added this book with this status."
+                    />
                 </div>
                 <div class="flex flex-col">
                     <div>
