@@ -19,16 +19,13 @@ const onSuccess = (page: Page) => {
 </script>
 
 <template>
-    <div>
-        Or
-        <a
-            class="font-bold hover:cursor-pointer"
-            @click="showAddBook = !showAddBook"
-        >
-            add a book manually
-        </a>
-        .
-    </div>
+    <button
+        type="button"
+        class="rounded-md bg-neutral-800 p-3 font-bold text-white hover:cursor-pointer hover:bg-black hover:text-white"
+        @click="showAddBook = !showAddBook"
+    >
+        Add a book manually
+    </button>
 
     <Form
         class="flex flex-col gap-4"

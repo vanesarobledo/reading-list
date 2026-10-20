@@ -12,7 +12,7 @@ class DashboardController extends Controller
     public function index(): Response
     {
         $user = auth()->user();
-        $readingLog = $user->books()->get();
+        $readingLog = $user->readingLogEntries()->with('book')->get();
         $readingLogEntries = ReadingLogEntryResource::collection($readingLog)->resolve();
 
         return Inertia::render('Dashboard', [
