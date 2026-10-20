@@ -24,7 +24,7 @@ class ReadingLogEntryController extends Controller
 
         $validated = $request->validate([
             'book_id' => ['required', Rule::exists('books', 'id')],
-            'status' => [Rule::enum(ReadingStatus::class)],
+            'status' => ['required', Rule::enum(ReadingStatus::class)],
             'started_at' => 'nullable|date',
             'finished_at' => 'nullable|date',
         ]);

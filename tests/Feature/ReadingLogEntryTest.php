@@ -66,3 +66,19 @@ test('user can only add a real book id to their reading log entry', function () 
     $response->assertRedirectBack();
     $this->assertDatabaseMissing((new ReadingLogEntry)->getTable(), $invalidBook);
 });
+
+test('user is required to add a status to their reading log entry', function () {
+    $book = Book::factory()->create();
+    $user = User::factory()->create();
+
+    $payload = [
+        'book_id' => $book->id,
+        'started_at' => now(),
+    ];
+
+    $response = $this->actingAs($user)
+        ->post('/reading-log', $payload);
+
+    $response->assertSessionHasErrors('status');
+    $this->assertDatabaseCount((new ReadingLogEntry)->getTable(), 0);
+});
