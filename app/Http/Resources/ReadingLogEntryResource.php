@@ -27,6 +27,7 @@ class ReadingLogEntryResource extends JsonResource
             'title' => $this->title,
             'author' => $this->author,
             'isbn' => $this->isbn,
+            'publisher' => $this->publisher,
             'publication_year' => $this->publication_year,
             'status' => $this->pivot->status,
             'status_label' => $this->pivot->status->label(),
