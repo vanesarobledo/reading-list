@@ -52,6 +52,6 @@ class User extends Authenticatable
     {
         return $this->belongstoMany(Book::class)
             ->using(ReadingLogEntry::class)
-            ->withPivot(['status', 'started_at', 'finished_at']);
+            ->withPivot(['id', 'status', 'started_at', 'finished_at']);
     }
 }

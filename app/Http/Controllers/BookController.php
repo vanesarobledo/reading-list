@@ -4,9 +4,10 @@ namespace App\Http\Controllers;
 
 use App\Http\Resources\BookResource;
 use App\Models\Book;
-use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
+use Inertia\Inertia;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 
 class BookController extends Controller
 {
@@ -50,15 +51,23 @@ class BookController extends Controller
         $validated = $request->validate([
             'title' => 'required',
             'author' => 'required',
+            'publisher' => 'sometimes',
             'isbn' => 'sometimes',
             'publication_year' => 'nullable|integer',
             'external_source' => 'sometimes',
             'external_id' => 'sometimes',
         ]);
 
-        Book::create($validated);
+        $createdBook = Book::create($validated);
+        $book = BookResource::make($createdBook);
 
-        return redirect()->back();
+        return Inertia::flash([
+            'book' => $book,
+            'toast' => [
+                'type' => 'success',
+                'message' => 'Book added!',
+            ],
+        ])->back();
     }
 
     //    public function show(string $id)
