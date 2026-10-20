@@ -29,7 +29,7 @@ const isDuplicateEntry = computed(() => {
     return props.readingLogEntries.some(
         (readingLogEntry: ReadingLogEntry) =>
             readingLogEntry.status === formStatus.value &&
-            readingLogEntry.book_id === selectedBook.value?.id,
+            readingLogEntry.book.id === selectedBook.value?.id,
     );
 });
 

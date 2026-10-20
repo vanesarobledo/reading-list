@@ -47,10 +47,10 @@ defineProps<{
                 >
                     <div>
                         <strong class="font-bold">{{
-                            readingLogEntry.title
+                            readingLogEntry.book.title
                         }}</strong>
                         by
-                        <span>{{ readingLogEntry.author }}</span>
+                        <span>{{ readingLogEntry.book.author }}</span>
                     </div>
                     <div
                         class="m-1 block rounded-2xl bg-neutral-100 p-2 text-sm uppercase"
