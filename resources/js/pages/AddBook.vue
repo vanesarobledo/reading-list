@@ -20,6 +20,7 @@ const onSuccess = (page: Page) => {
 
 <template>
     <button
+        type="button"
         class="rounded-md bg-neutral-800 p-3 font-bold text-white hover:cursor-pointer hover:bg-black hover:text-white"
         @click="showAddBook = !showAddBook"
     >

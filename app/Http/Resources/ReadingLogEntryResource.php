@@ -20,7 +20,7 @@ class ReadingLogEntryResource extends JsonResource
     {
         return [
             'id' => $this->id,
-            'book' => $this->whenLoaded('book', fn ($book) => BookResource::make($book)->resolve()),
+            'book' => BookResource::make($this->book)->resolve(),
             'status' => $this->status,
             'status_label' => $this->status->label(),
             'started_at' => $this->started_at,
