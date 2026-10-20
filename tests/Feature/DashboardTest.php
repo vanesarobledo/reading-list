@@ -59,7 +59,7 @@ test('authenticated users see their books in the dashboard', function () {
 
     $this->actingAs($user);
 
-    $response = $this->get(route('dashboard'));
+    $response = $this->get(route('dashboard'))->assertOk();
 
     $response->assertInertia(fn (AssertableInertia $page) => $page
         ->component('Dashboard')
