@@ -47,7 +47,7 @@ const isDuplicateEntry = computed(() => {
                 class="flex flex-col gap-2 rounded-lg border border-neutral-200 p-3 shadow-md"
             >
                 <legend class="text-lg font-bold">Add to Reading List</legend>
-                <div class="flex gap-4">
+                <div class="flex items-center gap-4">
                     <div>
                         <label class="font-bold" for="book_id">Book</label>
                         <em aria-label="required">*</em>
@@ -59,13 +59,14 @@ const isDuplicateEntry = computed(() => {
                             id="book_id"
                             :value="selectedBook?.id"
                         />
-                        <span v-if="errors.book_id" class="error">
-                            Search or add a book first to add it to your reading
-                            log.
-                        </span>
+                        <InputError
+                            v-if="errors.book_id"
+                            message="Search or add a book first to add it to your reading
+                            log."
+                        />
                         <span
                             v-else
-                            class="rounded-md border border-neutral-300 p-1"
+                            class="rounded-md border border-neutral-400 bg-neutral-50 p-2 text-center"
                         >
                             {{
                                 selectedBook
@@ -97,13 +98,10 @@ const isDuplicateEntry = computed(() => {
                             {{ status.label }}
                         </option>
                     </select>
-                    <div v-if="errors.status" class="error">
-                        {{ errors.status }}
+                    <InputError :message="errors.status" />
+                    <div v-if="isDuplicateEntry">
+                        Note: You have already added this book with this status.
                     </div>
-                    <InputError
-                        v-if="isDuplicateEntry"
-                        message="You have already added this book with this status."
-                    />
                 </div>
                 <div class="flex flex-col">
                     <div>
@@ -118,9 +116,7 @@ const isDuplicateEntry = computed(() => {
                     name="started_at"
                     id="started_at"
                 />
-                <div v-if="errors.started_at" class="error">
-                    {{ errors.started_at }}
-                </div>
+                <InputError :message="errors.started_at" />
                 <div class="flex flex-col">
                     <div>
                         <label class="font-bold" for="finished_at"
@@ -134,9 +130,7 @@ const isDuplicateEntry = computed(() => {
                     name="finished_at"
                     id="finished_at"
                 />
-                <div v-if="errors.finished_at" class="error">
-                    {{ errors.finished_at }}
-                </div>
+                <InputError :message="errors.finished_at" />
                 <div class="flex justify-between">
                     <button
                         type="submit"

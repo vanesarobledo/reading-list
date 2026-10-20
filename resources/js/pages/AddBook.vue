@@ -3,6 +3,7 @@ import type { Page } from '@inertiajs/core';
 import { Form } from '@inertiajs/vue3';
 import { ref } from 'vue';
 import { store } from '@/actions/App/Http/Controllers/BookController';
+import InputError from '@/components/InputError.vue';
 import type { Book } from '@/types';
 
 const selected = defineModel<Book | null>('selected');
@@ -53,9 +54,7 @@ const onSuccess = (page: Page) => {
                     id="title"
                     required
                 />
-                <div v-if="errors.title" class="error">
-                    {{ errors.title }}
-                </div>
+                <InputError :message="errors.title" />
             </div>
             <div class="flex flex-col">
                 <div>
@@ -69,9 +68,7 @@ const onSuccess = (page: Page) => {
                     id="author"
                     required
                 />
-                <div v-if="errors.author" class="error">
-                    {{ errors.author }}
-                </div>
+                <InputError :message="errors.author" />
             </div>
             <div class="flex gap-3">
                 <div class="flex grow flex-col">
@@ -86,9 +83,7 @@ const onSuccess = (page: Page) => {
                         name="publisher"
                         id="publisher"
                     />
-                    <div v-if="errors.publisher" class="error">
-                        {{ errors.publisher }}
-                    </div>
+                    <InputError :message="errors.publisher" />
                 </div>
                 <div class="flex grow-0 flex-col">
                     <div>
@@ -102,9 +97,7 @@ const onSuccess = (page: Page) => {
                         name="publication_year"
                         id="publication_year"
                     />
-                    <div v-if="errors.publication_year" class="error">
-                        {{ errors.publication_year }}
-                    </div>
+                    <InputError :message="errors.publication_year" />
                 </div>
             </div>
             <div class="flex flex-col">
@@ -117,9 +110,7 @@ const onSuccess = (page: Page) => {
                     name="isbn"
                     id="isbn"
                 />
-                <div v-if="errors.isbn" class="error">
-                    {{ errors.isbn }}
-                </div>
+                <InputError :message="errors.isbn" />
             </div>
         </fieldset>
         <div class="flex justify-between">
