@@ -62,17 +62,20 @@ const onSuccess = () => {
                 <div class="flex flex-col">
                     <div class="flex items-center gap-4">
                         <div>
-                            <label class="font-bold" for="book_id">Book</label>
+                            <label class="font-bold" id="selected_book"
+                                >Book</label
+                            >
                             <em aria-label="required">*</em>
                         </div>
                         <div class="flex flex-2 grow flex-col gap-2">
                             <input
                                 type="hidden"
                                 name="book_id"
-                                id="book_id"
                                 :value="selectedBook?.id"
                             />
                             <span
+                                role="status"
+                                aria-labelledby="selected_book"
                                 class="rounded-md border border-neutral-400 bg-neutral-50 p-2 text-center"
                             >
                                 {{
@@ -102,6 +105,9 @@ const onSuccess = () => {
                         v-model="formStatus"
                         required
                     >
+                        <option :value="null" disabled selected>
+                            Select a status
+                        </option>
                         <option
                             v-for="status in statuses"
                             :key="status.value"
@@ -121,28 +127,28 @@ const onSuccess = () => {
                             >Started Reading at</label
                         >
                     </div>
+                    <input
+                        type="date"
+                        class="rounded-md border border-neutral-300 p-1"
+                        name="started_at"
+                        id="started_at"
+                    />
+                    <InputError :message="errors.started_at" />
                 </div>
-                <input
-                    type="date"
-                    class="rounded-md border border-neutral-300 p-1"
-                    name="started_at"
-                    id="started_at"
-                />
-                <InputError :message="errors.started_at" />
                 <div class="flex flex-col">
                     <div>
                         <label class="font-bold" for="finished_at"
                             >Finished Reading at</label
                         >
                     </div>
+                    <input
+                        type="date"
+                        class="rounded-md border border-neutral-300 p-1"
+                        name="finished_at"
+                        id="finished_at"
+                    />
+                    <InputError :message="errors.finished_at" />
                 </div>
-                <input
-                    type="date"
-                    class="rounded-md border border-neutral-300 p-1"
-                    name="finished_at"
-                    id="finished_at"
-                />
-                <InputError :message="errors.finished_at" />
                 <div class="flex justify-between">
                     <button
                         type="submit"
