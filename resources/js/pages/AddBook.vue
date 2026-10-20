@@ -34,6 +34,7 @@ const onSuccess = (page: Page) => {
         class="flex flex-col gap-4"
         :action="store()"
         v-show="showAddBook"
+        :options="{ preserveScroll: true }"
         #default="{ errors, processing }"
         @success="onSuccess"
         resetOnSuccess

@@ -14,6 +14,8 @@ const props = defineProps<{
     statuses: Array<any>;
 }>();
 
+const missingBookMessage =
+    'Search or add a book first to add it to your reading log.';
 const selectedBook: Ref<Book | null> = ref(null);
 const formStatus: Ref<string | null> = ref(null);
 const isDuplicateEntry = computed(() => {
@@ -46,43 +48,44 @@ const onSuccess = () => {
             class="flex flex-col gap-4"
             :action="store()"
             #default="{ errors, processing }"
-            @success="onSuccess"
+            :options="{ preserveScroll: true }"
             :reset-on-success="['started_at', 'finished_at']"
+            @success="onSuccess"
         >
             <fieldset
                 class="flex flex-col gap-2 rounded-lg border border-neutral-200 p-3 shadow-md"
             >
                 <legend class="text-lg font-bold">Add to Reading List</legend>
-                <div class="flex items-center gap-4">
-                    <div>
-                        <label class="font-bold" for="book_id">Book</label>
-                        <em aria-label="required">*</em>
+                <div class="flex flex-col">
+                    <div class="flex items-center gap-4">
+                        <div>
+                            <label class="font-bold" for="book_id">Book</label>
+                            <em aria-label="required">*</em>
+                        </div>
+                        <div class="flex flex-2 grow flex-col gap-2">
+                            <input
+                                type="hidden"
+                                name="book_id"
+                                id="book_id"
+                                :value="selectedBook?.id"
+                            />
+                            <span
+                                class="rounded-md border border-neutral-400 bg-neutral-50 p-2 text-center"
+                            >
+                                {{
+                                    selectedBook
+                                        ? selectedBook.title +
+                                          ' by ' +
+                                          selectedBook.author
+                                        : '(Search or add a book)'
+                                }}
+                            </span>
+                        </div>
                     </div>
-                    <div class="flex flex-2 grow flex-col gap-2">
-                        <input
-                            type="hidden"
-                            name="book_id"
-                            id="book_id"
-                            :value="selectedBook?.id"
-                        />
-                        <InputError
-                            v-if="errors.book_id"
-                            message="Search or add a book first to add it to your reading
-                            log."
-                        />
-                        <span
-                            v-else
-                            class="rounded-md border border-neutral-400 bg-neutral-50 p-2 text-center"
-                        >
-                            {{
-                                selectedBook
-                                    ? selectedBook.title +
-                                      ' by ' +
-                                      selectedBook.author
-                                    : '(Search or add a book)'
-                            }}
-                        </span>
-                    </div>
+                    <InputError
+                        v-if="errors.book_id && !selectedBook"
+                        :message="missingBookMessage"
+                    />
                 </div>
                 <div class="flex flex-col">
                     <div>
