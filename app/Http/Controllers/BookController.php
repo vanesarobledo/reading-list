@@ -59,7 +59,7 @@ class BookController extends Controller
         ]);
 
         $createdBook = Book::create($validated);
-        $book = BookResource::make($createdBook)->resolve();
+        $book = BookResource::make($createdBook);
 
         return Inertia::flash([
             'book' => $book,
