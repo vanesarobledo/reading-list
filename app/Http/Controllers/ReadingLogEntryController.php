@@ -3,8 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Enums\ReadingStatus;
-use App\Http\Resources\BookResource;
-use App\Models\Book;
 use App\Models\ReadingLogEntry;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
@@ -34,12 +32,11 @@ class ReadingLogEntryController extends Controller
                 'user_id' => $user->id,
             ]
         );
-        $book = BookResource::make(Book::query()->where('id', '=', $createdReadingLogEntry->book_id)->first())->resolve();
 
         return Inertia::flash([
             'toast' => [
                 'type' => 'success',
-                'message' => $book['title'].' added to reading log',
+                'message' => $createdReadingLogEntry->book->title.' added to reading log',
             ],
         ])->back();
     }
