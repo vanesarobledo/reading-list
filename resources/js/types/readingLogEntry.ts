@@ -1,15 +1,15 @@
-export type ReadingStatus =
-    'want_to_read' | 'reading' | 'finished' | 'abandoned';
+import type { ReadingStatus } from '@/types/readingStatus';
 
 export type ReadingLogEntry = {
     id: number;
     book_id: number;
     title: string;
     author: string;
-    isbn: string;
-    publication_year: number;
+    isbn: string | null;
+    publisher: string | null;
+    publication_year: number | null;
     status: ReadingStatus;
     status_label: string;
-    started_at: string;
-    finished_at: string;
+    started_at: string | null;
+    finished_at: string | null;
 };

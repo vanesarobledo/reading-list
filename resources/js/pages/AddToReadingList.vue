@@ -5,19 +5,22 @@ import { computed } from 'vue';
 import { ref } from 'vue';
 import { store } from '@/actions/App/Http/Controllers/ReadingLogEntryController';
 import InputError from '@/components/InputError.vue';
-import type { Book, ReadingLogEntry } from '@/types';
+import type { Book, ReadingLogEntry, ReadingStatus } from '@/types';
 import AddBook from './AddBook.vue';
 import SearchBook from './SearchBook.vue';
 
 const props = defineProps<{
     readingLogEntries: Array<ReadingLogEntry>;
-    statuses: Array<any>;
+    statuses: Array<{
+        label: string;
+        value: ReadingStatus;
+    }>;
 }>();
 
 const missingBookMessage =
     'Search or add a book first to add it to your reading log.';
 const selectedBook: Ref<Book | null> = ref(null);
-const formStatus: Ref<string | null> = ref(null);
+const formStatus: Ref<ReadingStatus | null> = ref(null);
 const isDuplicateEntry = computed(() => {
     if (selectedBook.value == null) {
         return false;
