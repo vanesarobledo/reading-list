@@ -1,5 +1,6 @@
+import type { RenderResult } from '@testing-library/vue';
 import { cleanup, fireEvent, render } from '@testing-library/vue';
-import { beforeEach, afterEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { computed, ref } from 'vue';
 import type { UseBookSearchReturn } from '@/composables/useBookSearch';
 import { useBookSearch } from '@/composables/useBookSearch';
@@ -10,6 +11,15 @@ vi.mock('@/composables/useBookSearch');
 
 describe('SearchBook', () => {
     let state: UseBookSearchReturn;
+
+    const book: Book = {
+        author: 'Adam Tornhill',
+        id: 5,
+        isbn: '9781680500387',
+        publisher: 'Pragmatic Bookshelf',
+        publication_year: 2015,
+        title: 'Your Code as a Crime Scene',
+    };
 
     type UseBookState = {
         query: string;
@@ -41,6 +51,20 @@ describe('SearchBook', () => {
             noResults: computed(() => plainState.noResults),
         };
     }
+    const lookups = {
+        loading: (renderResult: RenderResult) =>
+            renderResult.queryByRole('status', { name: 'Loading' }),
+        belowMinimumLength: (renderResult: RenderResult) =>
+            renderResult.queryByText(/at least 2 characters/i),
+        error: (renderResult: RenderResult) =>
+            renderResult.queryByRole('alert'),
+        noResults: (renderResult: RenderResult) =>
+            renderResult.queryByText(/no books/i),
+        results: (renderResult: RenderResult) =>
+            renderResult.queryByRole('radio', {
+                name: /Your Code as a Crime Scene/,
+            }),
+    };
 
     beforeEach(() => {
         state = makeState();
@@ -62,18 +86,76 @@ describe('SearchBook', () => {
         expect(state.query.value).toBe('code');
     });
 
-    // it.todo.each([
-    //     { flags: { loading: true, belowMinimumLength: true, error: null, noResults: false, results: [] }, expected: {}  },
-    //     { flags: { loading: false, belowMinimumLength: true, error: null, noResults: false, results: [] }, expected: {}  },
-    //     { flags: { loading: false, belowMinimumLength: false, error: 'server', noResults: false, results: [] }, expected: {}  },
-    //     { flags: { loading: false, belowMinimumLength: false, error: null, noResults: true, results: [] }, expected: {}  },
-    //     { flags: { loading: false, belowMinimumLength: false, error: null, noResults: false, results: [/* actual results here */] }, expected: {}  },
-    // ])('renders only $expected', ( { flags, expected }  ) => {
-    //     // 1. turn the row's plain values into a UseBookSearchReturn (refs/computeds)
-    //     // 2. vi.mocked(useBookSearch).mockReturnValue(thatObject)   <- before render
-    //     // 3. render(SearchBook)
-    //     // 4. assert the expected state is in the DOM and the other four are absent
-    // });
+    // Impossible flag combinations (e.g. noResults: true and non-empty results array) are tested to test the template
+    // contract, since five flags are exposed, and pin rendering order
+    it.each<{ flags: Partial<UseBookState>; expected: keyof typeof lookups }>([
+        {
+            flags: {
+                loading: true,
+                belowMinimumLength: true,
+                error: 'server',
+                noResults: true,
+                results: [book],
+            },
+            expected: 'loading',
+        },
+        {
+            flags: {
+                loading: false,
+                belowMinimumLength: true,
+                error: 'server',
+                noResults: true,
+                results: [book],
+            },
+            expected: 'belowMinimumLength',
+        },
+        {
+            flags: {
+                loading: false,
+                belowMinimumLength: false,
+                error: 'server',
+                noResults: true,
+                results: [book],
+            },
+            expected: 'error',
+        },
+        {
+            flags: {
+                loading: false,
+                belowMinimumLength: false,
+                error: null,
+                noResults: true,
+                results: [book],
+            },
+            expected: 'noResults',
+        },
+        {
+            flags: {
+                loading: false,
+                belowMinimumLength: false,
+                error: null,
+                noResults: false,
+                results: [book],
+            },
+            expected: 'results',
+        },
+    ])('renders only $expected', ({ flags, expected }) => {
+        state = makeState(flags);
+
+        vi.mocked(useBookSearch).mockReturnValue(state);
+
+        const renderResult = render(SearchBook);
+
+        expect(lookups[expected](renderResult)).not.toBeNull();
+
+        for (const [name, query] of Object.entries(lookups)) {
+            if (name === expected) {
+                continue;
+            }
+
+            expect(query(renderResult)).toBeNull();
+        }
+    });
 
     it.todo('emits "selected" when selecting a radio');
     it.todo('[each] error code tests to message text');
