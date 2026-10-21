@@ -23,6 +23,7 @@ describe('useBookSearch', () => {
                 author: 'Adam Tornhill',
                 id: 5,
                 isbn: '9781680500387',
+                publisher: 'Pragmatic Bookshelf',
                 publication_year: 2015,
                 title: 'Your Code as a Crime Scene',
             },
