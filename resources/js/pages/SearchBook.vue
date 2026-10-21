@@ -51,18 +51,23 @@ const errorMessages: Record<BookSearchError, string> = {
                 </div>
             </div>
             <div v-else>
-                <ul v-show="results.length">
-                    <li v-for="result in results" :key="result.id">
-                        <input
-                            type="radio"
-                            name="book"
-                            v-model="selected"
-                            :value="result"
-                        />
-                        {{ result.title }} by
-                        {{ result.author }}
-                    </li>
-                </ul>
+                <fieldset v-show="results.length">
+                    <legend>Select a book:</legend>
+                    <ul>
+                        <li v-for="result in results" :key="result.id">
+                            <label>
+                                <input
+                                    type="radio"
+                                    name="book"
+                                    v-model="selected"
+                                    :value="result"
+                                />
+                                {{ result.title }} by
+                                {{ result.author }}
+                            </label>
+                        </li>
+                    </ul>
+                </fieldset>
             </div>
         </div>
     </div>
