@@ -157,6 +157,21 @@ describe('SearchBook', () => {
         }
     });
 
-    it.todo('emits "selected" when selecting a radio');
+    it.todo('emits "selected" when selecting a radio', async () => {
+        state = makeState({
+            query: 'code',
+            results: [book],
+            belowMinimumLength: false,
+        });
+
+        vi.mocked(useBookSearch).mockReturnValue(state);
+
+        // const renderResult = render(SearchBook, {
+        //     props: {
+        //         selected: null,
+        //     }
+        // });
+    });
+
     it.todo('[each] error code tests to message text');
 });
