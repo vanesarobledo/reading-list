@@ -147,25 +147,28 @@ describe('SearchBook', () => {
             },
             expected: 'results',
         },
-    ])('renders only $expected', ({ flags, expected }) => {
-        state = makeState(flags);
+    ])(
+        '$expected takes priority over lower-priority states when rendering',
+        ({ flags, expected }) => {
+            state = makeState(flags);
 
-        vi.mocked(useBookSearch).mockReturnValue(state);
+            vi.mocked(useBookSearch).mockReturnValue(state);
 
-        const renderResult = render(SearchBook);
+            const renderResult = render(SearchBook);
 
-        expect(lookups[expected](renderResult)).not.toBeNull();
+            expect(lookups[expected](renderResult)).not.toBeNull();
 
-        for (const [name, query] of Object.entries(lookups)) {
-            if (name === expected) {
-                continue;
+            for (const [name, query] of Object.entries(lookups)) {
+                if (name === expected) {
+                    continue;
+                }
+
+                expect(query(renderResult)).toBeNull();
             }
+        },
+    );
 
-            expect(query(renderResult)).toBeNull();
-        }
-    });
-
-    it('emits "selected" when selecting a radio', async () => {
+    it('emits "update:selected" with Book payload when selecting a radio', async () => {
         state = makeState({
             query: 'code',
             results: [book],
@@ -190,7 +193,7 @@ describe('SearchBook', () => {
     });
 
     it.each(Object.entries(expectedMessages))(
-        '%s error renders "%s"',
+        'renders %s error message',
         (errorType, expected) => {
             state = makeState({
                 belowMinimumLength: false,
