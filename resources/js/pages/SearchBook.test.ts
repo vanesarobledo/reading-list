@@ -157,7 +157,7 @@ describe('SearchBook', () => {
         }
     });
 
-    it.todo('emits "selected" when selecting a radio', async () => {
+    it('emits "selected" when selecting a radio', async () => {
         state = makeState({
             query: 'code',
             results: [book],
@@ -166,11 +166,19 @@ describe('SearchBook', () => {
 
         vi.mocked(useBookSearch).mockReturnValue(state);
 
-        // const renderResult = render(SearchBook, {
-        //     props: {
-        //         selected: null,
-        //     }
-        // });
+        const { getByRole, emitted } = render(SearchBook, {
+            props: {
+                selected: null,
+            },
+        });
+
+        const radioButton = getByRole('radio', {
+            name: /Your Code as a Crime Scene/,
+        });
+
+        await fireEvent.click(radioButton);
+
+        expect(emitted('update:selected')).toEqual([[book]]);
     });
 
     it.todo('[each] error code tests to message text');
