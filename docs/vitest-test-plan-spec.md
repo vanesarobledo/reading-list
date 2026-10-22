@@ -1,7 +1,7 @@
 # Spec: Vitest test plan — Add Book & Search Book
 
-Status: **in progress** (last updated 2026-09-24). Parts 1 and 2 done. Parts 3
-and 4 not started.
+Status: **in progress** (last updated 2026-10-22). Parts 1, 2 and 3 done.
+Part 4 not started.
 Mode: **Socratic** — this doc describes *what* to test and *why*, with hints on
 approach. It is not test code. You write the actual test bodies yourself.
 
@@ -47,10 +47,9 @@ Decisions made this session:
 Mechanical scaffolding (no need to puzzle over *why* here beyond what's noted):
 
 - [x] Install `vitest`, `@vue/test-utils`, `jsdom`. `@vitejs/plugin-vue` is
-      already a devDependency. `@testing-library/vue` is also installed —
-      still decide which query style to use in Parts 3–4 and stay consistent
-      (its `getByRole`/`getByLabelText` queries tend to produce more resilient
-      tests than raw CSS selectors).
+      already a devDependency. `@testing-library/vue` is also installed.
+      Part 3 went with Testing Library's role/text queries (`getByRole`,
+      `queryByText`, `within`) — stay consistent with that in Part 4.
 - [x] New `vitest.config.ts` at the repo root with its own `resolve.alias`
       (`@` → `resources/js`), the `vue()` plugin, and
       `test: { environment: 'jsdom' }`. `vite.config.ts` is deliberately not
@@ -166,34 +165,46 @@ they fail (lessons §22).
 ## Part 3 — `SearchBook.vue` (component)
 
 **File:** `resources/js/pages/SearchBook.vue`
+**Tests:** `resources/js/pages/SearchBook.test.ts`
 
-Decide: mock `useBookSearch()` entirely (isolates rendering logic from
-behavior already covered in Part 2 — recommended, avoids re-testing the same
-debounce/fetch logic twice) vs. let it run for real against a mocked `fetch`
-(more integration-y, catches wiring bugs like the component reading the wrong
-property off the composable's return, at the cost of overlap with Part 2).
-Kent C. Dodds' "testing implementation details" writing is useful background
-on this trade-off if you want it:
+Decision: `useBookSearch()` is mocked entirely (`vi.mock` +
+`vi.mocked(useBookSearch).mockReturnValue(state)`), isolating rendering from
+the behavior already covered in Part 2. A `makeState(overrides)` helper builds
+the composable's return (`ref`s for state, `computed`s for
+`belowMinimumLength`/`noResults`). Tests that need non-default state rebuild
+it and re-mock before `render`. Background on the trade-off:
 https://testing-library.com/docs/guiding-principles/
 
 Test cases:
-- [ ] typing in the input updates the composable's `query` ref (assert via
+- [x] typing in the input updates the composable's `query` ref (assert via
       the mock)
-- [ ] the five states — loading / belowMinimumLength / error / noResults /
-      results — each render correctly in isolation, and only one at a time.
-      Write this as a table-driven test that sets multiple flags true at once
-      and asserts only the highest-priority one renders, to pin down the
-      actual `v-else-if` precedence order (loading > belowMinimumLength >
-      error > noResults > results) rather than assuming the template is right
-- [ ] selecting a radio updates the exposed `defineModel('selected')` value to
-      the correct `Book` object — check Vue Test Utils' docs section on
-      testing `v-model`/`defineModel` for the current API
-- [ ] error state renders via `AlertError` with the error wrapped correctly
-      (`Array(error)`) — catches a regression if that wrapping ever changes.
-      The composable now returns a `BookSearchError` code, not a message;
-      `SearchBook.vue` maps it through its `errorMessages` record
-      (`Array(errorMessages[error])`). Test that each code renders its
-      message
+- [x] `v-else-if` precedence (loading > belowMinimumLength > error >
+      noResults > results): table-driven, each row sets every lower-priority
+      flag true too, and asserts only the expected state renders via a
+      `lookups` table of `queryBy*` queries. The impossible flag combinations
+      are deliberate — the test pins the template contract, not realistic
+      states. Named "$expected takes priority over lower-priority states" so
+      the report shows it's a precedence test, not an isolation test
+- [x] selecting a radio emits `update:selected` with the `Book` object
+      (`emitted('update:selected')` from `render`)
+- [x] each `BookSearchError` code renders its message inside the alert.
+      Decisions:
+      - `errorMessages` stays private in `SearchBook.vue`. Expected strings
+        are hardcoded in the test (`expectedMessages`) — importing the
+        component's record would make the test agree with any typo (same
+        trap as lessons §26). `<script setup>` can't export anyway
+      - `expectedMessages: Record<BookSearchError, string>` makes the table
+        exhaustive at compile time. A plain annotation suffices; `satisfies`
+        isn't needed here
+      - Rows come from `Object.entries(expectedMessages)`; the key arrives as
+        `string`, cast `as BookSearchError`. Safe because excess property
+        checks on the literal rule out extra keys
+      - Assert with `within(getByRole('alert')).queryByText(expected)`.
+        `getByRole('alert').textContent` includes the `AlertTitle` ("Search
+        Error") too, and an unscoped `queryByText` would pass if the message
+        rendered outside the alert
+      - [ ] still to do: comment out one `expectedMessages` entry and confirm
+        `npm run types` errors
 
 ## Part 4 — `AddBook.vue` (full flow, per this session's call)
 
@@ -248,8 +259,8 @@ Test cases:
 
 ## Verification checklist
 
-- [ ] `npm run test` runs and all new tests pass (Part 2 tests pass so far;
-      Parts 3–4 not written)
+- [ ] `npm run test` runs and all new tests pass (Parts 2–3 pass, 30 tests
+      as of 2026-10-22; Part 4 not written)
 - [x] `npm run test` wired into `composer.json`'s `ci:check`, which
       `.github/workflows/tests.yml` runs
 - [x] Every branch of `useBookSearch`'s error-categorization `switch`
@@ -260,5 +271,6 @@ Test cases:
       gap — "does not set an error when a request is aborted" also passes
       when nothing is aborted (only the sibling "aborts first" test catches
       that)
+- [x] Part 3 error-message tests mutation-checked (2026-10-22)
 - [ ] Manually re-verify in the browser that adding the test infra didn't
       change `dev`/`build` behavior
