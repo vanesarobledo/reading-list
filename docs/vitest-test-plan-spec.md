@@ -1,7 +1,7 @@
 # Spec: Vitest test plan — Add Book & Search Book
 
 Status: **in progress** (last updated 2026-10-22). Parts 1, 2 and 3 done.
-Part 4 not started.
+Part 4 not started (re-planned 2026-10-22).
 Mode: **Socratic** — this doc describes *what* to test and *why*, with hints on
 approach. It is not test code. You write the actual test bodies yourself.
 
@@ -37,10 +37,11 @@ Decisions made this session:
   `showAddBook` toggle ref, not enough complexity to justify hiding behind an
   abstraction, and it wouldn't touch the actual hard-to-test part anyway,
   since `<Form>` owns `errors`/`processing`/`wasSuccessful` internally
-  regardless of what wraps it). Go for **full-flow coverage** instead,
-  including mocking Inertia's router so submit → errors → success is actually
-  exercised — accepted as more test setup than the search side, on purpose,
-  rather than changing production code to dodge that setup.
+  regardless of what wraps it). Go for **full-flow coverage** instead, so
+  submit → errors → success is actually exercised, without changing
+  production code to dodge test setup. Revisited 2026-10-22: full flow needs
+  only a `vi.spyOn(router, 'post')`, not a module mock of `@inertiajs/vue3`
+  (see Part 4).
 
 ## Part 1 — Vitest setup (done)
 
@@ -203,43 +204,68 @@ Test cases:
         `getByRole('alert').textContent` includes the `AlertTitle` ("Search
         Error") too, and an unscoped `queryByText` would pass if the message
         rendered outside the alert
-      - [ ] still to do: comment out one `expectedMessages` entry and confirm
-        `npm run types` errors
+      - [x] confirmed (2026-10-22): commenting out one `expectedMessages`
+        entry makes `npm run types` error
 
-## Part 4 — `AddBook.vue` (full flow, per this session's call)
+## Part 4 — `AddBook.vue` (full flow via a `router.post` spy)
 
 **File:** `resources/js/pages/AddBook.vue`
+**Tests:** `resources/js/pages/AddBook.test.ts`
 
-The hard one: Inertia's `<Form>` component (the newer v3 API, distinct from
-the older `useForm()`) performs a real navigation via Inertia's router rather
-than exposing a plain `v-model`-able state object. Testing `errors` /
-`processing` / `wasSuccessful` means intercepting that router call, not a
-plain `fetch`. Check https://inertiajs.com/forms for what's actually mockable
-— search current docs/issues specifically for `<Form>`, since older writing
-about `useForm()` won't directly transfer. You'll likely end up with
-`vi.mock('@inertiajs/vue3', ...)` controlling what the mocked submission
-resolves to per test case.
+Decision (2026-10-22): keep the **real** `<Form>` and spy on the router
+underneath it. Alternatives considered and rejected:
+- Stubbing `<Form>` (Part 3 style) — the stub would re-implement Inertia's slot
+  contract in the test and drift silently; it also can't catch a dropped
+  `resetOnSuccess` or `@success`
+- Testing only toggle + labels — skips `onSuccess`, the only real logic here
+
+How submission works in `@inertiajs/vue3` 3.6.1 (read from
+`node_modules/@inertiajs/vue3/dist/index.js`): `<Form>` → `useForm().submit()`
+→ `router[method](url, data, options)` (~line 462), where `router` is the
+singleton exported by `@inertiajs/core`. `<Form>` wraps each visit callback
+in `options` with its own state handling: `onStart` sets `processing`,
+`onError` sets `errors`, `onSuccess` calls your `@success` handler then
+applies `resetOnSuccess` (~line 1111), `onFinish` clears `processing`. These
+callbacks are the documented visit-event API:
+https://inertiajs.com/manual-visits#event-callbacks
+
+So no `vi.mock` is needed. Spy on `router.post`, let the click reach it, pull
+`options` out of the spy's recorded call, and fire the callbacks yourself to
+drive each state. Hints:
+- Which argument index holds `options`? Check the call shape above
+- The callbacks update reactive state; what do you need to `await` before the
+  DOM reflects it?
+- Restore the spy between tests (same reasoning as `vi.unstubAllGlobals()` in
+  Part 2)
+- Unverified: whether jsdom runs constraint validation on `required` fields
+  when the submit button is clicked. If it does, an empty-field submit never
+  reaches the spy. Find out with one test before building on it
+- `onSuccess` needs a `Page`, but `AddBook.vue` reads only `page.flash`.
+  Decide how to build a partial one (`as Page` vs `fromPartial` from
+  `@total-typescript/shoehorn`, not installed)
 
 Test cases:
-- [ ] manual-add fieldset is hidden until "add a book manually" is clicked;
-      "Close" hides it again
+- [ ] manual-add form is hidden until "Add a book manually" is clicked;
+      "Close" hides it again. Note it's `v-show`, so the element exists in
+      the DOM either way. Which query/assertion distinguishes hidden from
+      absent?
 - [ ] all fields render with correct labels/required attributes (title,
-      author required; publisher, publication_year, ISBN optional)
-- [ ] validation errors: a mocked submission resolving with an error on a
-      given field renders that field's error message — cover title, author,
-      publisher, publication_year, and isbn individually
-- [ ] the ISBN casing question: the input is `name="ISBN"` but the error is
-      read from `errors.isbn` (lowercase). Write a test that mocks a
-      validation error keyed `isbn` and asserts whether it actually renders.
-      Don't guess at the answer — this test tells you whether it's a live bug
-      or already handled somewhere in the Inertia/Laravel field-naming
-      pipeline
-- [ ] processing state: button text switches to "Adding Book..." and is
-      disabled while `processing` is true
-- [ ] success: `wasSuccessful` renders the success message. Check what
-      `resetOnSuccess` actually guarantees per Inertia's docs before deciding
-      whether it's something worth asserting in a jsdom test versus an
-      Inertia-internal behavior not worth re-testing
+      author required; publisher, publication_year, isbn optional)
+- [ ] submitting calls `router.post` with the `store()` URL and the typed
+      field values (proves the form is wired to the right endpoint)
+- [ ] validation errors: firing `onError` with an error on a given field
+      renders that field's message. Cover title, author, publisher,
+      publication_year, and isbn (table-driven like Part 3). The old ISBN
+      casing question is resolved: the input is now `name="isbn"`
+- [ ] processing state: after `onStart`, the submit button is disabled
+- [ ] success with `flash.book`: emits `update:selected` with that book and
+      hides the form
+- [ ] success without `flash.book`: no `update:selected` emit, form stays
+      visible (the `if` guard in `onSuccess`)
+- [ ] `resetOnSuccess`: fields are cleared after `onSuccess`. Inertia resets
+      the real DOM inputs, so this works in jsdom. Decide whether it's worth
+      a test: it re-tests Inertia's code, but it's also the only thing that
+      fails if someone removes the prop
 
 ## Explicitly out of scope for this pass
 
@@ -251,7 +277,7 @@ Test cases:
   controller; this plan is frontend-only)
 - E2E/browser tests (Playwright/Cypress) — this is unit/component level only
 - Swapping `AddBook.vue`'s `<Form>` for `useForm()` — considered during this
-  planning session and rejected in favor of mocking Inertia directly; revisit
+  planning session and rejected in favor of spying on Inertia's router; revisit
   only if the mocking setup in Part 4 turns out to be unworkable in practice
 - Changing `useBookSearch.ts` to work around jsdom quirks (e.g. the
   `DOMException` / `instanceof Error` mismatch) — the test should reproduce
