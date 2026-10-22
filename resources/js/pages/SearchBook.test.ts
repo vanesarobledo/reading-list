@@ -1,4 +1,5 @@
 import type { RenderResult } from '@testing-library/vue';
+import { within } from '@testing-library/vue';
 import { cleanup, fireEvent, render } from '@testing-library/vue';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { computed, ref } from 'vue';
@@ -64,6 +65,13 @@ describe('SearchBook', () => {
             renderResult.queryByRole('radio', {
                 name: /Your Code as a Crime Scene/,
             }),
+    };
+
+    const expectedMessages: Record<BookSearchError, string> = {
+        server: 'Something went wrong with the server. Please try again.',
+        network: 'Unable to reach the server. Check your connection.',
+        parse: 'Received unexpected response from the server.',
+        default: 'Something went wrong. Please try again.',
     };
 
     beforeEach(() => {
@@ -181,5 +189,21 @@ describe('SearchBook', () => {
         expect(emitted('update:selected')).toEqual([[book]]);
     });
 
-    it.todo('[each] error code tests to message text');
+    it.each(Object.entries(expectedMessages))(
+        '%s error renders "%s"',
+        (errorType, expected) => {
+            state = makeState({
+                belowMinimumLength: false,
+                error: errorType as BookSearchError,
+            });
+
+            vi.mocked(useBookSearch).mockReturnValue(state);
+
+            const { getByRole } = render(SearchBook);
+
+            const errorMessage = getByRole('alert');
+
+            expect(within(errorMessage).queryByText(expected)).not.toBeNull();
+        },
+    );
 });
