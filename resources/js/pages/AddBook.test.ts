@@ -9,7 +9,7 @@ function getHTMLInputElement(inputElement: HTMLElement, label: string) {
         throw new Error('Expected <input> for "' + label + '"');
     }
 
-    return inputElement as HTMLInputElement;
+    return inputElement;
 }
 
 const addABookButtonText = 'Add a book manually';
@@ -39,6 +39,18 @@ describe('AddBook', () => {
                 name: 'Add a Book Manually',
             }),
         ).not.toBeNull();
+
+        const closeButton = getByRole('button', {
+            name: 'Close',
+        });
+
+        await fireEvent.click(closeButton);
+
+        expect(
+            queryByRole('form', {
+                name: 'Add a Book Manually',
+            }),
+        ).toBeNull();
     });
 
     it.each<{
@@ -93,7 +105,7 @@ describe('AddBook', () => {
         },
     );
 
-    it('calls router.post on submit to store() URL', async () => {
+    it('submits typed field values to router.post to store() URL', async () => {
         const { getByRole } = render(AddBook);
 
         const showAddFormButton = getByRole('button', {
@@ -104,41 +116,52 @@ describe('AddBook', () => {
 
         const postSpy = vi.spyOn(router, 'post').mockImplementation(() => {});
 
+        const titleInput = getByRole('textbox', {
+            name: 'Title',
+        });
+
+        const authorInput = getByRole('textbox', {
+            name: 'Author',
+        });
+
+        const publisherInput = getByRole('textbox', {
+            name: 'Publisher',
+        });
+
+        const publicationYearInput = getByRole('spinbutton', {
+            name: 'Publication Year',
+        });
+
+        const isbnInput = getByRole('textbox', {
+            name: 'ISBN',
+        });
+
+        const bookTitle = 'Moby Dick';
+        const bookAuthor = 'Herman Melville';
+        const bookPublisher = 'Signet';
+        const bookPublicationYear = '1851';
+        const bookISBN = '978-0451532282';
+
+        await fireEvent.update(titleInput, bookTitle);
+        await fireEvent.update(authorInput, bookAuthor);
+        await fireEvent.update(publisherInput, bookPublisher);
+        await fireEvent.update(publicationYearInput, bookPublicationYear);
+        await fireEvent.update(isbnInput, bookISBN);
+
         const submitAddBookButton = getByRole('button', {
             name: 'Add Book',
         });
 
-        const titleInput = getHTMLInputElement(
-            getByRole('textbox', {
-                name: 'Title',
-            }),
-            'Title',
-        );
-
-        const authorInput = getHTMLInputElement(
-            getByRole('textbox', {
-                name: 'Author',
-            }),
-            'Author',
-        );
-
-        const bookTitle = 'Moby Dick';
-        const bookAuthor = 'Herman Melville';
-
-        await fireEvent.update(titleInput, bookTitle);
-        await fireEvent.update(authorInput, bookAuthor);
-
         await fireEvent.click(submitAddBookButton);
 
-        expect(postSpy).toHaveBeenCalled();
-        expect(postSpy).toHaveBeenCalledWith(
+        expect(postSpy).toHaveBeenCalledExactlyOnceWith(
             store.url(),
             {
                 title: bookTitle,
                 author: bookAuthor,
-                isbn: '',
-                publication_year: '',
-                publisher: '',
+                publisher: bookPublisher,
+                publication_year: bookPublicationYear,
+                isbn: bookISBN,
             },
             expect.anything(),
         );
