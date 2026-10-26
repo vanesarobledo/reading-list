@@ -1,7 +1,8 @@
 # Spec: Vitest test plan — Add Book & Search Book
 
-Status: **in progress** (last updated 2026-10-22). Parts 1, 2 and 3 done.
-Part 4 not started (re-planned 2026-10-22).
+Status: **in progress** (last updated 2026-10-26). Parts 1, 2 and 3 done.
+Part 4 in progress: toggle (open + Close), labels and submit tests written
+(2026-10-26).
 Mode: **Socratic** — this doc describes *what* to test and *why*, with hints on
 approach. It is not test code. You write the actual test bodies yourself.
 
@@ -236,7 +237,16 @@ drive each state. Hints:
 - The callbacks update reactive state; what do you need to `await` before the
   DOM reflects it?
 - Restore the spy between tests (same reasoning as `vi.unstubAllGlobals()` in
-  Part 2)
+  Part 2). Done: `afterEach` calls `vi.restoreAllMocks()`.
+  `vi.unstubAllGlobals()` only undoes `vi.stubGlobal` and doesn't restore
+  `vi.spyOn` spies
+- The spy is a no-op (`mockImplementation(() => {})`) in every test. `<Form>`
+  gets visit results through the callbacks in `options`, not through
+  `router.post`'s return value, so `flash.book` reaches the component as the
+  `onSuccess(page)` argument that the test passes in
+- Created inline in the submit test for now. Extract it to the `describe`
+  level (`beforeEach` + `let postSpy: MockInstance<...>`, or a `setup()`
+  helper like Part 2) once a second test needs it
 - Unverified: whether jsdom runs constraint validation on `required` fields
   when the submit button is clicked. If it does, an empty-field submit never
   reaches the spy. Find out with one test before building on it
@@ -245,14 +255,46 @@ drive each state. Hints:
   `@total-typescript/shoehorn`, not installed)
 
 Test cases:
-- [ ] manual-add form is hidden until "Add a book manually" is clicked;
+- [x] manual-add form is hidden until "Add a book manually" is clicked;
       "Close" hides it again. Note it's `v-show`, so the element exists in
       the DOM either way. Which query/assertion distinguishes hidden from
       absent?
-- [ ] all fields render with correct labels/required attributes (title,
-      author required; publisher, publication_year, isbn optional)
-- [ ] submitting calls `router.post` with the `store()` URL and the typed
-      field values (proves the form is wired to the right endpoint)
+      - `queryByRole('form', { name })` is `null` before the click, non-null
+        after, and `null` again after clicking "Close". Role queries skip
+        elements hidden with `display: none`, so no `toBeVisible()` (that
+        needs `@testing-library/jest-dom`, which isn't installed)
+      - The query runs fresh each time. Storing its *result* in a `const`
+        would freeze it at `null`. Only the query itself can be extracted
+        (as a function), and for now it's written out three times
+      - The opener's own re-toggle (clicking "Add a book manually" twice)
+        isn't tested. An earlier draft clicked the opener twice, but that
+        still passed with Close's `@click` deleted
+- [x] all fields render with correct labels/required attributes (title,
+      author required; publisher, publication_year, isbn optional).
+      Table-driven `it.each` with `label`/`role`/`requirement`. Publication
+      Year's role is `spinbutton` (`type="number"`)
+- [x] submitting calls `router.post` with the `store()` URL and the typed
+      field values (proves the form is wired to the right endpoint). Named
+      "submits typed field values to router.post to store() URL". Decisions:
+      - All five fields get distinct values. With the optional fields left
+        empty, swapping two `name` attributes would still produce
+        `{ publisher: '', isbn: '' }` and pass
+      - `publication_year` is expected as the string `'1851'`. `<Form>` reads
+        values from the DOM, and a `type="number"` input's value is still a
+        string
+      - `toHaveBeenCalledWith(store.url(), data, expect.anything())`. The
+        assertion has to include the third `options` argument, because
+        `toHaveBeenCalledWith` compares the whole argument list. The test
+        doesn't pin the call count; `toHaveBeenCalledExactlyOnceWith` would
+        also catch a double submit
+      - Expecting `store.url()` instead of a hardcoded path is fine here (not
+        the lessons §26 trap). The test claims the form is wired to the store
+        action, and the Pest tests cover the route
+      - Filling the required fields means this test doesn't answer the
+        jsdom constraint-validation question above
+      - [x] mutation-checked (2026-10-26): fails when `:action="store()"` is
+        removed, when one input's `name` changes, and when two `name`s are
+        swapped. Passes again once each change is reverted
 - [ ] validation errors: firing `onError` with an error on a given field
       renders that field's message. Cover title, author, publisher,
       publication_year, and isbn (table-driven like Part 3). The old ISBN
@@ -285,8 +327,8 @@ Test cases:
 
 ## Verification checklist
 
-- [ ] `npm run test` runs and all new tests pass (Parts 2–3 pass, 30 tests
-      as of 2026-10-22; Part 4 not written)
+- [ ] `npm run test` runs and all new tests pass (37 pass and 5 are todo as
+      of 2026-10-26; Part 4 is partly written)
 - [x] `npm run test` wired into `composer.json`'s `ci:check`, which
       `.github/workflows/tests.yml` runs
 - [x] Every branch of `useBookSearch`'s error-categorization `switch`
@@ -298,5 +340,6 @@ Test cases:
       when nothing is aborted (only the sibling "aborts first" test catches
       that)
 - [x] Part 3 error-message tests mutation-checked (2026-10-22)
+- [ ] Part 4 tests mutation-checked. Submit test done (2026-10-26)
 - [ ] Manually re-verify in the browser that adding the test infra didn't
       change `dev`/`build` behavior
