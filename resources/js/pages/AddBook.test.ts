@@ -1,6 +1,31 @@
-import { describe, it } from 'vitest';
+import { cleanup, fireEvent, render } from '@testing-library/vue';
+import { describe, it, expect, afterEach } from 'vitest';
+import AddBook from '@/pages/AddBook.vue';
+
 describe('AddBook', () => {
-    it.todo('hides form until "Add a book manually" is clicked');
+    afterEach(cleanup);
+
+    it('hides form until "Add a book manually" is clicked', async () => {
+        const { queryByRole, getByRole } = render(AddBook);
+
+        expect(
+            queryByRole('form', {
+                name: 'Add a Book Manually',
+            }),
+        ).toBeNull();
+
+        const showAddFormButton = getByRole('button', {
+            name: 'Add a book manually',
+        });
+
+        await fireEvent.click(showAddFormButton);
+
+        expect(
+            queryByRole('form', {
+                name: 'Add a Book Manually',
+            }),
+        ).not.toBeNull();
+    });
 
     it.todo(
         'renders all fields to add a book with correct labels and required attributes',
