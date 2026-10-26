@@ -35,57 +35,57 @@ describe('AddBook', () => {
         ).not.toBeNull();
     });
 
-    it('renders all fields to add a book with correct labels and required attributes', async () => {
-        const { getByRole } = render(AddBook);
+    it.each<{
+        label: string;
+        role: string;
+        requirement: 'required' | 'optional';
+    }>([
+        {
+            label: 'Title',
+            role: 'textbox',
+            requirement: 'required',
+        },
+        {
+            label: 'Author',
+            role: 'textbox',
+            requirement: 'required',
+        },
+        {
+            label: 'Publisher',
+            role: 'textbox',
+            requirement: 'optional',
+        },
+        {
+            label: 'Publication Year',
+            role: 'spinbutton',
+            requirement: 'optional',
+        },
+        {
+            label: 'ISBN',
+            role: 'textbox',
+            requirement: 'optional',
+        },
+    ])(
+        'renders $label input field as $requirement',
+        async ({ label, role, requirement }) => {
+            const { getByRole } = render(AddBook);
 
-        const showAddFormButton = getByRole('button', {
-            name: 'Add a book manually',
-        });
+            const showAddFormButton = getByRole('button', {
+                name: 'Add a book manually',
+            });
 
-        await fireEvent.click(showAddFormButton);
+            await fireEvent.click(showAddFormButton);
 
-        // title, author required; publisher, publication_year, isbn optional
-        const titleInput = getHTMLInputElement(
-            getByRole('textbox', {
-                name: 'Title',
-            }),
-            'Title',
-        );
+            const inputElement = getHTMLInputElement(
+                getByRole(role, {
+                    name: label,
+                }),
+                label,
+            );
 
-        const authorInput = getHTMLInputElement(
-            getByRole('textbox', {
-                name: 'Author',
-            }),
-            'Author',
-        );
-
-        const publisherInput = getHTMLInputElement(
-            getByRole('textbox', {
-                name: 'Publisher',
-            }),
-            'Publisher',
-        );
-
-        const publicationYearInput = getHTMLInputElement(
-            getByRole('spinbutton', {
-                name: 'Publication Year',
-            }),
-            'Publication Year',
-        );
-
-        const isbnInput = getHTMLInputElement(
-            getByRole('textbox', {
-                name: 'ISBN',
-            }),
-            'ISBN',
-        );
-
-        expect(titleInput.required).toBe(true);
-        expect(authorInput.required).toBe(true);
-        expect(publisherInput.required).toBe(false);
-        expect(publicationYearInput.required).toBe(false);
-        expect(isbnInput.required).toBe(false);
-    });
+            expect(inputElement.required).toBe(requirement === 'required');
+        },
+    );
 
     it.todo('calls router.post on submit to store() URL');
 
