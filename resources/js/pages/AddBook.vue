@@ -29,6 +29,7 @@ const onSuccess = (page: Page) => {
 
     <Form
         class="flex flex-col gap-4"
+        aria-labelledby="add-book-legend"
         :action="store()"
         v-show="showAddBook"
         :options="{ preserveScroll: true }"
@@ -39,7 +40,9 @@ const onSuccess = (page: Page) => {
         <fieldset
             class="flex flex-col gap-2 rounded-lg border border-neutral-200 p-3 shadow-md"
         >
-            <legend class="text-lg font-bold">Add a Book Manually</legend>
+            <legend class="text-lg font-bold" id="add-book-legend">
+                Add a Book Manually
+            </legend>
             <div class="flex flex-col">
                 <div>
                     <label class="font-bold" for="title">Title</label>
