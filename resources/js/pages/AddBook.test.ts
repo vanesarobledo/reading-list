@@ -5,16 +5,24 @@ import { nextTick } from 'vue';
 import { store } from '@/actions/App/Http/Controllers/BookController';
 import AddBook from '@/pages/AddBook.vue';
 
-function getHTMLInputElement(inputElement: HTMLElement, label: string) {
-    if (!(inputElement instanceof HTMLInputElement)) {
-        throw new Error('Expected <input> for "' + label + '"');
+describe('AddBook', () => {
+    const addABookButtonText = 'Add a book manually';
+
+    async function setup() {
+        const { getByRole, emitted } = render(AddBook);
+
+        const showAddFormButton = getByRole('button', {
+            name: addABookButtonText,
+        });
+
+        await fireEvent.click(showAddFormButton);
+
+        return {
+            getByRole,
+            emitted,
+        };
     }
 
-    return inputElement;
-}
-
-const addABookButtonText = 'Add a book manually';
-describe('AddBook', () => {
     function mockRouterPost() {
         let capturedOptions: Parameters<typeof router.post>[2];
 
@@ -27,9 +35,23 @@ describe('AddBook', () => {
         return {
             postSpy,
             get options() {
+                if (!capturedOptions) {
+                    throw new Error(
+                        'Expected router.post to be called before reading options',
+                    );
+                }
+
                 return capturedOptions;
             },
         };
+    }
+
+    function getHTMLInputElement(inputElement: HTMLElement, label: string) {
+        if (!(inputElement instanceof HTMLInputElement)) {
+            throw new Error('Expected <input> for "' + label + '"');
+        }
+
+        return inputElement;
     }
 
     afterEach(() => {
@@ -104,13 +126,7 @@ describe('AddBook', () => {
     ])(
         'renders $label input field as $requirement',
         async ({ label, role, requirement }) => {
-            const { getByRole } = render(AddBook);
-
-            const showAddFormButton = getByRole('button', {
-                name: addABookButtonText,
-            });
-
-            await fireEvent.click(showAddFormButton);
+            const { getByRole } = await setup();
 
             const inputElement = getHTMLInputElement(
                 getByRole(role, {
@@ -124,13 +140,7 @@ describe('AddBook', () => {
     );
 
     it('submits typed field values to router.post to store() URL', async () => {
-        const { getByRole } = render(AddBook);
-
-        const showAddFormButton = getByRole('button', {
-            name: addABookButtonText,
-        });
-
-        await fireEvent.click(showAddFormButton);
+        const { getByRole } = await setup();
 
         const { postSpy } = mockRouterPost();
 
@@ -219,13 +229,7 @@ describe('AddBook', () => {
     ])(
         'renders $label error when onError is fired',
         async ({ label, role, field, message }) => {
-            const { getByRole } = render(AddBook);
-
-            const showAddFormButton = getByRole('button', {
-                name: addABookButtonText,
-            });
-
-            await fireEvent.click(showAddFormButton);
+            const { getByRole } = await setup();
 
             const errors = {
                 [field]: message,
@@ -239,20 +243,19 @@ describe('AddBook', () => {
 
             await fireEvent.submit(form);
 
-            if (!mock.options || !mock.options.onError) {
-                // TODO better error message here
-                throw new Error('onError not set');
+            if (!mock.options.onError) {
+                throw new Error('Spy relies on onError being passed to router');
             }
 
             mock.options.onError(errors);
 
-            const inputError = getByRole(role, {
+            await nextTick();
+
+            const inputElement = getByRole(role, {
                 name: label,
             });
 
-            await nextTick();
-
-            expect(inputError).toHaveAccessibleDescription(message);
+            expect(inputElement).toHaveAccessibleDescription(message);
         },
     );
 
