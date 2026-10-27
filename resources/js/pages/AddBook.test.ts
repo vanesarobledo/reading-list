@@ -2,16 +2,21 @@ import type { ActiveVisit, PendingVisit } from '@inertiajs/core';
 import { router } from '@inertiajs/vue3';
 import { cleanup, fireEvent, render } from '@testing-library/vue';
 import { flushPromises } from '@vue/test-utils';
-import { describe, it, expect, afterEach, vi } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import { nextTick } from 'vue';
 import { store } from '@/actions/App/Http/Controllers/BookController';
 import AddBook from '@/pages/AddBook.vue';
+import type { Book } from '@/types';
 
 describe('AddBook', () => {
     const addABookButtonText = 'Add a book manually';
 
     async function setup() {
-        const { getByRole, emitted } = render(AddBook);
+        const { getByRole, emitted } = render(AddBook, {
+            props: {
+                selected: null,
+            },
+        });
 
         await fireEvent.click(
             getByRole('button', {
@@ -293,9 +298,34 @@ describe('AddBook', () => {
         expect(submitAddBookButton).not.toBeDisabled();
     });
 
-    it.todo(
-        'emits "update:selected" upon success with Book payload and hides the form on success with flash.book',
-    );
+    it('emits "update:selected" upon success with Book payload and hides the form on success with flash.book', async () => {
+        const { form, emitted } = await setup();
+
+        const mock = mockRouterPost();
+
+        await fireEvent.submit(form);
+
+        if (!mock.options.onSuccess) {
+            throw new Error('Spy relies on onSuccess being passed to router');
+        }
+
+        const book: Book = {
+            id: 1,
+            title: 'Moby-Dick',
+            author: 'Herman Melville',
+            publisher: null,
+            publication_year: 1851,
+            isbn: null,
+        };
+
+        const onSuccess = mock.options.onSuccess;
+        onSuccess({ flash: { book } } as Parameters<typeof onSuccess>[0]);
+
+        await flushPromises();
+
+        expect(emitted('update:selected')).toEqual([[book]]);
+        expect(form).not.toBeVisible();
+    });
 
     it.todo(
         'does not emit "update:selected" if success does not have flash.book',
