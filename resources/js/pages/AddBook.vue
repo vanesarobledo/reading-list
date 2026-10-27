@@ -53,9 +53,10 @@ const onSuccess = (page: Page) => {
                     class="rounded-md border border-neutral-300 p-1"
                     name="title"
                     id="title"
+                    aria-describedby="title-error"
                     required
                 />
-                <InputError :message="errors.title" />
+                <InputError :message="errors.title" id="title-error" />
             </div>
             <div class="flex flex-col">
                 <div>
@@ -67,9 +68,10 @@ const onSuccess = (page: Page) => {
                     class="rounded-md border border-neutral-300 p-1"
                     name="author"
                     id="author"
+                    aria-describedby="author-error"
                     required
                 />
-                <InputError :message="errors.author" />
+                <InputError :message="errors.author" id="author-error" />
             </div>
             <div class="flex gap-3">
                 <div class="flex grow flex-col">
@@ -82,9 +84,13 @@ const onSuccess = (page: Page) => {
                         type="text"
                         class="rounded-md border border-neutral-300 p-1"
                         name="publisher"
+                        aria-describedby="publisher-error"
                         id="publisher"
                     />
-                    <InputError :message="errors.publisher" />
+                    <InputError
+                        :message="errors.publisher"
+                        id="publisher-error"
+                    />
                 </div>
                 <div class="flex grow-0 flex-col">
                     <div>
@@ -97,8 +103,12 @@ const onSuccess = (page: Page) => {
                         class="rounded-md border border-neutral-300 p-1"
                         name="publication_year"
                         id="publication_year"
+                        aria-describedby="publication-year-error"
                     />
-                    <InputError :message="errors.publication_year" />
+                    <InputError
+                        :message="errors.publication_year"
+                        id="publication-year-error"
+                    />
                 </div>
             </div>
             <div class="flex flex-col">
@@ -110,8 +120,9 @@ const onSuccess = (page: Page) => {
                     class="rounded-md border border-neutral-300 p-1"
                     name="isbn"
                     id="isbn"
+                    aria-describedby="isbn-error"
                 />
-                <InputError :message="errors.isbn" />
+                <InputError :message="errors.isbn" id="isbn-error" />
             </div>
         </fieldset>
         <div class="flex justify-between">
