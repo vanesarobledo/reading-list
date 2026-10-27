@@ -1,5 +1,7 @@
+import type { ActiveVisit, PendingVisit } from '@inertiajs/core';
 import { router } from '@inertiajs/vue3';
 import { cleanup, fireEvent, render } from '@testing-library/vue';
+import { flushPromises } from '@vue/test-utils';
 import { describe, it, expect, afterEach, vi } from 'vitest';
 import { nextTick } from 'vue';
 import { store } from '@/actions/App/Http/Controllers/BookController';
@@ -11,14 +13,24 @@ describe('AddBook', () => {
     async function setup() {
         const { getByRole, emitted } = render(AddBook);
 
-        const showAddFormButton = getByRole('button', {
-            name: addABookButtonText,
+        await fireEvent.click(
+            getByRole('button', {
+                name: addABookButtonText,
+            }),
+        );
+
+        const form = getByRole('form', {
+            name: 'Add a Book Manually',
         });
 
-        await fireEvent.click(showAddFormButton);
+        const submitAddBookButton = getByRole('button', {
+            name: 'Add Book',
+        });
 
         return {
             getByRole,
+            form,
+            submitAddBookButton,
             emitted,
         };
     }
@@ -140,7 +152,7 @@ describe('AddBook', () => {
     );
 
     it('submits typed field values to router.post to store() URL', async () => {
-        const { getByRole } = await setup();
+        const { getByRole, submitAddBookButton } = await setup();
 
         const { postSpy } = mockRouterPost();
 
@@ -175,10 +187,6 @@ describe('AddBook', () => {
         await fireEvent.update(publisherInput, bookPublisher);
         await fireEvent.update(publicationYearInput, bookPublicationYear);
         await fireEvent.update(isbnInput, bookISBN);
-
-        const submitAddBookButton = getByRole('button', {
-            name: 'Add Book',
-        });
 
         await fireEvent.click(submitAddBookButton);
 
@@ -229,17 +237,13 @@ describe('AddBook', () => {
     ])(
         'renders $label error when onError is fired',
         async ({ label, role, field, message }) => {
-            const { getByRole } = await setup();
+            const { getByRole, form } = await setup();
 
             const errors = {
                 [field]: message,
             };
 
             const mock = mockRouterPost();
-
-            const form = getByRole('form', {
-                name: 'Add a Book Manually',
-            });
 
             await fireEvent.submit(form);
 
@@ -259,7 +263,35 @@ describe('AddBook', () => {
         },
     );
 
-    it.todo('disables submit button when processing');
+    it('disables submit button when processing and re-enables when finished', async () => {
+        const { form, submitAddBookButton } = await setup();
+
+        const mock = mockRouterPost();
+
+        expect(submitAddBookButton).not.toBeDisabled();
+
+        await fireEvent.submit(form);
+
+        if (!mock.options.onStart) {
+            throw new Error('Spy relies on onStart being passed to router');
+        }
+
+        mock.options.onStart({} as PendingVisit);
+
+        await flushPromises();
+
+        expect(submitAddBookButton).toBeDisabled();
+
+        if (!mock.options.onFinish) {
+            throw new Error('Spy relies on onFinish being passed to router');
+        }
+
+        mock.options.onFinish({} as ActiveVisit);
+
+        await flushPromises();
+
+        expect(submitAddBookButton).not.toBeDisabled();
+    });
 
     it.todo(
         'emits "update:selected" upon success with Book payload and hides the form on success with flash.book',
