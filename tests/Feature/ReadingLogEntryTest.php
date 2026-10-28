@@ -159,6 +159,25 @@ describe('delete a reading log entry', function () {
         $response->assertNotFound();
     });
 
-    test('user with duplicate reading log entries only deletes the individual reading log entry')->todo();
+    test('user with duplicate reading log entries only deletes the individual reading log entry', function () {
+        $user = User::factory()->create();
+        $book = Book::factory()->create();
+        $readingLogEntryData = [
+            'book_id' => $book->id,
+            'status' => ReadingStatus::WANT_TO_READ->value,
+            'started_at' => null,
+            'finished_at' => null,
+            'user_id' => $user->id,
+        ];
+        $readingLogEntry = ReadingLogEntry::create($readingLogEntryData);
+        $duplicateReadingLogEntry = ReadingLogEntry::create($readingLogEntryData);
+
+        $this->actingAs($user)
+            ->delete(route('reading.log.destroy', $readingLogEntry->id));
+
+        $this->assertModelMissing($readingLogEntry);
+        $this->assertModelExists($duplicateReadingLogEntry);
+    });
+
     test('user cannot delete a reading log entry with the same book belonging to another user')->todo();
 });
