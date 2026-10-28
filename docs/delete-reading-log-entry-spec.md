@@ -1,4 +1,4 @@
-**Status**: agreed via `/grill-me`, not yet implemented.
+**Status**: agreed via `/grill-me`, backend in progress.
 **Issue**: #12.
 **Mode**: Socratic. This doc describes *what* and *why*, not *how* line-by-line. Contracts are fixed; implementation is yours. Concepts to look up are named, not coded.
 
@@ -34,31 +34,31 @@ As a user, I can delete a reading log entry I added. This is the "D" of CRUD: a 
 
 Write these against the current code and watch them fail (red) before implementing. One at a time is fine.
 
-1. **Owner can delete their entry.** Assert the row is gone, redirect back, and the toast flash (same assertions style as the existing `store` test).
-2. **Another user cannot delete it.** `403`, and the entry still exists.
-3. **Guest cannot delete it.** Redirect to login, and the entry still exists.
-4. **Unknown id returns `404`.**
-5. **Rereads:** a user has two entries for the same book. Deleting one leaves the other.
-6. **Other users' entries for the same book:** user A and user B each have an entry for the same book. A deletes theirs; B's is untouched.
+- [x] 1. **Owner can delete their entry.** Assert the row is gone, redirect back, and the toast flash (same assertions style as the existing `store` test).
+- [x] 2. **Another user cannot delete it.** `403`, and the entry still exists.
+- [x] 3. **Guest cannot delete it.** Redirect to login, and the entry still exists.
+- [x] 4. **Unknown id returns `404`.**
+- [x] 5. **Rereads:** a user has two entries for the same book. Deleting one leaves the other.
+- [x] 6. **Other users' entries for the same book:** user A and user B each have an entry for the same book. A deletes theirs; B's is untouched.
 
-Tests 5 and 6 together catch a delete scoped by `book_id` instead of the entry itself.
+Test 5 catches any delete scoped by book instead of by entry `id`: by `user_id` + `book_id` (`detach()`, or `Pivot::delete()`'s fallback when the pivot has no `id`), or by `book_id` alone. Test 6 also catches a `book_id`-only delete, and is the test that pins down that other users' entries are never touched.
 
 ### Route: `routes/web.php`
 
-- [ ] Add the `DELETE` route per the contracts table.
+- [x] Add the `DELETE` route per the contracts table.
 
 ### Controller: `ReadingLogEntryController::destroy()`
 
-- [ ] Un-comment and implement `destroy`. The signature already uses route model binding; make sure the route parameter name matches it.
-- [ ] Authorize before deleting (via the policy below).
-- [ ] Delete, flash the toast, redirect back, mirroring `store()`.
+- [x] Un-comment and implement `destroy`. The signature already uses route model binding; make sure the route parameter name matches it.
+- [x] Authorize before deleting (via the policy below).
+- [x] Delete, flash the toast, redirect back, mirroring `store()`.
 - Heads-up: `ReadingLogEntry` extends `Pivot`, not `Model`. Pivots have their own `delete()` override. Peek at `Illuminate\Database\Eloquent\Relations\Pivot::delete()` and convince yourself which branch runs for a model that has an `id`. Tests 5 and 6 will tell you if you're wrong.
 
 ### Policy: new `ReadingLogEntryPolicy`
 
-- [ ] Generate it with Artisan, scoped to the model.
-- [ ] Keep only a `delete` method: a user can delete an entry only if they own it. Delete any other generated stubs.
-- [ ] Check whether Laravel auto-discovers it from the naming convention, or whether you need to register it.
+- [x] Generate it with Artisan, scoped to the model.
+- [x] Keep only a `delete` method: a user can delete an entry only if they own it. Delete any other generated stubs. `update` kept commented out as a placeholder.
+- [x] Check whether Laravel auto-discovers it from the naming convention, or whether you need to register it. Auto-discovered; `#[UsePolicy]` kept to make it explicit.
 
 ## Frontend
 
@@ -91,11 +91,11 @@ Tests 5 and 6 together catch a delete scoped by `book_id` instead of the entry i
 - Styling beyond functional (#14).
 
 ## Workflow checklist
-- [ ] Branch off `main`.
-- [ ] Commit the first failing test, push, open a **draft PR** with `closes #12`.
+- [x] Branch off `main`.
+- [x] Commit the first failing test, push, open a **draft PR** with `closes #12`.
 - [ ] Commit order: controller tests → controller/route/policy → tests passing → frontend.
 - [ ] Manual check in the browser (below).
-- [ ] Mark the PR ready, get it reviewed (human or AI), address the review.
+- [ ] Mark the PR ready, get it reviewed (human or AI), address the review. AI review last.
 - [ ] Merge only when CI is green.
 - [ ] Fill in the Actual column and the issue's time tracking.
 
