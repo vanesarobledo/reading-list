@@ -24,7 +24,7 @@ describe('add a reading log entry', function () {
         ];
 
         $response = $this->actingAs($user)
-            ->post('/reading-log', $payload);
+            ->post(route('reading.log.store'), $payload);
 
         $response->assertValid()->assertRedirectBack();
         $response->assertInertiaFlash('toast');
@@ -38,7 +38,7 @@ describe('add a reading log entry', function () {
         $status = ReadingStatus::WANT_TO_READ->value;
 
         $response1 = $this->actingAs($user)
-            ->post('/reading-log', [
+            ->post(route('reading.log.store'), [
                 'book_id' => $book->id,
                 'status' => $status,
             ]);
@@ -46,7 +46,7 @@ describe('add a reading log entry', function () {
         $response1->assertValid();
 
         $response2 = $this->actingAs($user)
-            ->post('/reading-log', [
+            ->post(route('reading.log.store'), [
                 'book_id' => $book->id,
                 'status' => $status,
             ]);
@@ -64,7 +64,7 @@ describe('add a reading log entry', function () {
         ];
 
         $response = $this->actingAs($user)
-            ->post('/reading-log', $payload);
+            ->post(route('reading.log.store'), $payload);
 
         $response->assertSessionHasErrors('book_id');
         $this->assertDatabaseCount((new ReadingLogEntry)->getTable(), 0);
@@ -81,7 +81,7 @@ describe('add a reading log entry', function () {
         unset($payload[$field]);
 
         $response = $this->actingAs($user)
-            ->post('/reading-log', $payload);
+            ->post(route('reading.log.store'), $payload);
 
         $response->assertSessionHasErrors($field);
         $this->assertDatabaseCount((new ReadingLogEntry)->getTable(), 0);
@@ -104,7 +104,7 @@ describe('delete a reading log entry', function () {
         ]);
 
         $response = $this->actingAs($user)
-            ->delete('/reading-log/'.$readingLogEntry->id);
+            ->delete(route('reading.log.destroy', $readingLogEntry));
 
         $response->assertValid()->assertRedirectBack();
         $response->assertInertiaFlash('toast');
@@ -126,7 +126,7 @@ describe('delete a reading log entry', function () {
         ]);
 
         $response = $this->actingAs($user)
-            ->delete('/reading-log/'.$anotherReadingLogEntry->id);
+            ->delete(route('reading.log.destroy', $anotherReadingLogEntry->id));
 
         $response->assertStatus(403);
         $this->assertModelExists($anotherReadingLogEntry);
@@ -142,7 +142,7 @@ describe('delete a reading log entry', function () {
             'user_id' => $user->id,
         ]);
 
-        $response = $this->delete('/reading-log/'.$readingLogEntry->id);
+        $response = $this->delete(route('reading.log.destroy', $readingLogEntry));
 
         $response->assertRedirect(route('login'));
         $this->assertModelExists($readingLogEntry);
