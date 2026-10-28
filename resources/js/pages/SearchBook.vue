@@ -2,12 +2,18 @@
 import AlertError from '@/components/AlertError.vue';
 import { Spinner } from '@/components/ui/spinner';
 import { useBookSearch } from '@/composables/useBookSearch';
-import type { Book } from '@/types';
+import type { Book, BookSearchError } from '@/types';
 
 const selected = defineModel<Book | null>('selected');
 
 const { query, results, loading, error, belowMinimumLength, noResults } =
     useBookSearch();
+const errorMessages: Record<BookSearchError, string> = {
+    server: 'Something went wrong with the server. Please try again.',
+    network: 'Unable to reach the server. Check your connection.',
+    parse: 'Received unexpected response from the server.',
+    default: 'Something went wrong. Please try again.',
+};
 </script>
 
 <template>
@@ -17,10 +23,11 @@ const { query, results, loading, error, belowMinimumLength, noResults } =
         >
             <legend class="text-lg font-bold">Search for a Book</legend>
             <input
-                type="text"
+                type="search"
                 class="flex-2 rounded-md border border-neutral-300 p-2"
                 name="query"
                 v-model="query"
+                aria-label="Search books by title or author"
                 placeholder="Search books by title or author..."
             />
         </fieldset>
@@ -33,7 +40,10 @@ const { query, results, loading, error, belowMinimumLength, noResults } =
                 </div>
             </div>
             <div v-else-if="error">
-                <AlertError :errors="Array(error)" title="Search Error" />
+                <AlertError
+                    :errors="Array(errorMessages[error])"
+                    title="Search Error"
+                />
             </div>
             <div v-else-if="noResults">
                 <div class="text-center text-neutral-500 italic">
@@ -41,18 +51,23 @@ const { query, results, loading, error, belowMinimumLength, noResults } =
                 </div>
             </div>
             <div v-else>
-                <ul v-show="results">
-                    <li v-for="result in results" :key="result.id">
-                        <input
-                            type="radio"
-                            name="book"
-                            v-model="selected"
-                            :value="result"
-                        />
-                        {{ result.title }} by
-                        {{ result.author }}
-                    </li>
-                </ul>
+                <fieldset v-show="results.length">
+                    <legend>Select a book:</legend>
+                    <ul>
+                        <li v-for="result in results" :key="result.id">
+                            <label>
+                                <input
+                                    type="radio"
+                                    name="book"
+                                    v-model="selected"
+                                    :value="result"
+                                />
+                                {{ result.title }} by
+                                {{ result.author }}
+                            </label>
+                        </li>
+                    </ul>
+                </fieldset>
             </div>
         </div>
     </div>
