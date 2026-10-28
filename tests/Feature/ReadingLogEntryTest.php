@@ -95,9 +95,11 @@ describe('delete a reading log entry', function () {
     test('user can delete a reading log entry', function () {
         $book = Book::factory()->create();
         $user = User::factory()->create();
-        $readingLogEntry = ReadingLogEntry::factory()->create([
+        $readingLogEntry = ReadingLogEntry::create([
             'book_id' => $book->id,
             'status' => ReadingStatus::WANT_TO_READ->value,
+            'started_at' => null,
+            'finished_at' => null,
             'user_id' => $user->id,
         ]);
 
@@ -107,7 +109,7 @@ describe('delete a reading log entry', function () {
         $response->assertValid()->assertRedirectBack();
         $response->assertInertiaFlash('toast');
         $response->assertInertiaFlash('toast.message', $book->title.' removed from reading log');
-        $this->assertDatabaseMissing((new ReadingLogEntry)->getTable(), $readingLogEntry->toArray());
+        $this->assertModelMissing($readingLogEntry);
     });
 
     test('user cannot delete another user\'s reading log entry')->todo();

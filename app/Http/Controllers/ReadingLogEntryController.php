@@ -51,8 +51,16 @@ class ReadingLogEntryController extends Controller
     //        //
     //    }
 
-    //    public function destroy(ReadingLogEntry $readingLogEntry)
-    //    {
-    //        //
-    //    }
+    public function destroy(ReadingLogEntry $readingLogEntry)
+    {
+        $readingLogEntryToDelete = ReadingLogEntry::find($readingLogEntry->id);
+        $readingLogEntryToDelete->delete();
+
+        return Inertia::flash([
+            'toast' => [
+                'type' => 'success',
+                'message' => $readingLogEntry->book->title.' removed from reading log',
+            ],
+        ])->back();
+    }
 }
