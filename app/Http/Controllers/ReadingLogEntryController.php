@@ -51,9 +51,14 @@ class ReadingLogEntryController extends Controller
     //        //
     //    }
 
-    public function destroy(ReadingLogEntry $readingLogEntry)
+    public function destroy(ReadingLogEntry $readingLogEntry): RedirectResponse
     {
-        $readingLogEntryToDelete = ReadingLogEntry::find($readingLogEntry->id);
+        $readingLogEntryToDelete = ReadingLogEntry::query()->find($readingLogEntry->id);
+
+        if (auth()->user()->cannot('delete', $readingLogEntryToDelete)) {
+            abort(403);
+        }
+
         $readingLogEntryToDelete->delete();
 
         return Inertia::flash([

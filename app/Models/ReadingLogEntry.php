@@ -3,11 +3,14 @@
 namespace App\Models;
 
 use App\Enums\ReadingStatus;
+use App\Policies\ReadingLogEntryPolicy;
 use Database\Factories\ReadingLogEntryFactory;
+use Illuminate\Database\Eloquent\Attributes\UsePolicy;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
+#[UsePolicy(ReadingLogEntryPolicy::class)]
 class ReadingLogEntry extends Model
 {
     /** @use HasFactory<ReadingLogEntryFactory> */
