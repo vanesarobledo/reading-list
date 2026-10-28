@@ -179,5 +179,25 @@ describe('delete a reading log entry', function () {
         $this->assertModelExists($duplicateReadingLogEntry);
     });
 
-    test('user cannot delete a reading log entry with the same book belonging to another user')->todo();
+    test('user cannot delete a reading log entry with the same book belonging to another user', function () {
+        $user = User::factory()->create();
+        $anotherUser = User::factory()->create();
+
+        $book = Book::factory()->create();
+        $readingLogEntryData = [
+            'book_id' => $book->id,
+            'status' => ReadingStatus::WANT_TO_READ->value,
+            'started_at' => null,
+            'finished_at' => null,
+        ];
+
+        $readingLogEntry = ReadingLogEntry::create([...$readingLogEntryData, 'user_id' => $user->id]);
+        $readingLogEntryWithSameBookDifferentUser = ReadingLogEntry::create([...$readingLogEntryData, 'user_id' => $anotherUser->id]);
+
+        $this->actingAs($user)
+            ->delete(route('reading.log.destroy', $readingLogEntry->id));
+
+        $this->assertModelMissing($readingLogEntry);
+        $this->assertModelExists($readingLogEntryWithSameBookDifferentUser);
+    });
 });
