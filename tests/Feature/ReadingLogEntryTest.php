@@ -131,6 +131,7 @@ describe('delete a reading log entry', function () {
         $response->assertStatus(403);
         $this->assertModelExists($anotherReadingLogEntry);
     });
+
     test('guest cannot delete a reading log entry', function () {
         $user = User::factory()->create();
         $book = Book::factory()->create();
@@ -147,7 +148,17 @@ describe('delete a reading log entry', function () {
         $response->assertRedirect(route('login'));
         $this->assertModelExists($readingLogEntry);
     });
-    test('returns 404 if reading log entry does not exist')->todo();
+
+    test('returns 404 if reading log entry does not exist', function () {
+        $user = User::factory()->create();
+        $nonExistentReadingLogEntryId = 9999;
+
+        $response = $this->actingAs($user)
+            ->delete(route('reading.log.destroy', $nonExistentReadingLogEntryId));
+
+        $response->assertNotFound();
+    });
+
     test('user with duplicate reading log entries only deletes the individual reading log entry')->todo();
     test('user cannot delete a reading log entry with the same book belonging to another user')->todo();
 });
