@@ -327,9 +327,25 @@ describe('AddBook', () => {
         expect(form).not.toBeVisible();
     });
 
-    it.todo(
-        'does not emit "update:selected" if success does not have flash.book',
-    );
+    it('does not emit "update:selected" if success does not have flash.book', async () => {
+        const { form, emitted } = await setup();
+
+        const mock = mockRouterPost();
+
+        await fireEvent.submit(form);
+
+        if (!mock.options.onSuccess) {
+            throw new Error('Spy relies on onSuccess being passed to router');
+        }
+
+        const onSuccess = mock.options.onSuccess;
+        onSuccess({ flash: {} } as Parameters<typeof onSuccess>[0]);
+
+        await flushPromises();
+
+        expect(emitted('update:selected')).toEqual(undefined);
+        expect(form).toBeVisible();
+    });
 
     it.todo('clears fields after onSuccess');
 });
