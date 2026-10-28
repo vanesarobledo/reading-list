@@ -12,7 +12,7 @@ describe('AddBook', () => {
     const addABookButtonText = 'Add a book manually';
     const book: Book = {
         id: 1,
-        title: 'Moby-Dick',
+        title: 'Moby Dick',
         author: 'Herman Melville',
         publisher: 'Signet',
         publication_year: 1851,
@@ -318,7 +318,7 @@ describe('AddBook', () => {
         expect(submitAddBookButton).not.toBeDisabled();
     });
 
-    it('emits "update:selected" upon success with Book payload and hides the form on success with flash.book', async () => {
+    it('emits "update:selected" with the book and hides the form when success has flash.book', async () => {
         const { form, emitted } = await setup();
 
         const mock = mockRouterPost();
@@ -354,7 +354,7 @@ describe('AddBook', () => {
 
         await flushPromises();
 
-        expect(emitted('update:selected')).toEqual(undefined);
+        expect(emitted()).not.toHaveProperty('update:selected');
         expect(form).toBeVisible();
     });
 
