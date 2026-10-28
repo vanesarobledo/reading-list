@@ -10,6 +10,14 @@ import type { Book } from '@/types';
 
 describe('AddBook', () => {
     const addABookButtonText = 'Add a book manually';
+    const book: Book = {
+        id: 1,
+        title: 'Moby-Dick',
+        author: 'Herman Melville',
+        publisher: 'Signet',
+        publication_year: 1851,
+        isbn: '978-0451532282',
+    };
 
     async function setup() {
         const { getByRole, emitted } = render(AddBook, {
@@ -24,6 +32,26 @@ describe('AddBook', () => {
             }),
         );
 
+        const titleInput = getByRole('textbox', {
+            name: 'Title',
+        });
+
+        const authorInput = getByRole('textbox', {
+            name: 'Author',
+        });
+
+        const publisherInput = getByRole('textbox', {
+            name: 'Publisher',
+        });
+
+        const publicationYearInput = getByRole('spinbutton', {
+            name: 'Publication Year',
+        });
+
+        const isbnInput = getByRole('textbox', {
+            name: 'ISBN',
+        });
+
         const form = getByRole('form', {
             name: 'Add a Book Manually',
         });
@@ -35,6 +63,11 @@ describe('AddBook', () => {
         return {
             getByRole,
             form,
+            titleInput,
+            authorInput,
+            publisherInput,
+            publicationYearInput,
+            isbnInput,
             submitAddBookButton,
             emitted,
         };
@@ -157,29 +190,16 @@ describe('AddBook', () => {
     );
 
     it('submits typed field values to router.post to store() URL', async () => {
-        const { getByRole, submitAddBookButton } = await setup();
+        const {
+            titleInput,
+            authorInput,
+            publisherInput,
+            publicationYearInput,
+            isbnInput,
+            submitAddBookButton,
+        } = await setup();
 
         const { postSpy } = mockRouterPost();
-
-        const titleInput = getByRole('textbox', {
-            name: 'Title',
-        });
-
-        const authorInput = getByRole('textbox', {
-            name: 'Author',
-        });
-
-        const publisherInput = getByRole('textbox', {
-            name: 'Publisher',
-        });
-
-        const publicationYearInput = getByRole('spinbutton', {
-            name: 'Publication Year',
-        });
-
-        const isbnInput = getByRole('textbox', {
-            name: 'ISBN',
-        });
 
         const bookTitle = 'Moby Dick';
         const bookAuthor = 'Herman Melville';
@@ -309,15 +329,6 @@ describe('AddBook', () => {
             throw new Error('Spy relies on onSuccess being passed to router');
         }
 
-        const book: Book = {
-            id: 1,
-            title: 'Moby-Dick',
-            author: 'Herman Melville',
-            publisher: null,
-            publication_year: 1851,
-            isbn: null,
-        };
-
         const onSuccess = mock.options.onSuccess;
         onSuccess({ flash: { book } } as Parameters<typeof onSuccess>[0]);
 
@@ -347,5 +358,39 @@ describe('AddBook', () => {
         expect(form).toBeVisible();
     });
 
-    it.todo('clears fields after onSuccess');
+    it('clears fields after onSuccess', async () => {
+        const {
+            titleInput,
+            authorInput,
+            publisherInput,
+            publicationYearInput,
+            isbnInput,
+            submitAddBookButton,
+        } = await setup();
+
+        const mock = mockRouterPost();
+
+        await fireEvent.update(titleInput, 'Moby Dick');
+        await fireEvent.update(authorInput, 'Herman Melville');
+        await fireEvent.update(publisherInput, 'Signet');
+        await fireEvent.update(publicationYearInput, '1851');
+        await fireEvent.update(isbnInput, '978-0451532282');
+
+        await fireEvent.click(submitAddBookButton);
+
+        if (!mock.options.onSuccess) {
+            throw new Error('Spy relies on onSuccess being passed to router');
+        }
+
+        const onSuccess = mock.options.onSuccess;
+        onSuccess({ flash: { book } } as Parameters<typeof onSuccess>[0]);
+
+        await flushPromises();
+
+        expect(titleInput).toHaveValue('');
+        expect(authorInput).toHaveValue('');
+        expect(publisherInput).toHaveValue('');
+        expect(publicationYearInput).toHaveValue(null);
+        expect(isbnInput).toHaveValue('');
+    });
 });
