@@ -5,15 +5,13 @@ namespace App\Models;
 use App\Enums\ReadingStatus;
 use Database\Factories\ReadingLogEntryFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\Pivot;
 
-class ReadingLogEntry extends Pivot
+class ReadingLogEntry extends Model
 {
     /** @use HasFactory<ReadingLogEntryFactory> */
     use HasFactory;
-
-    public $incrementing = true;
 
     protected $table = 'book_user';
 
