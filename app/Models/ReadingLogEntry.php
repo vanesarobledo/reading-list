@@ -13,8 +13,6 @@ class ReadingLogEntry extends Model
     /** @use HasFactory<ReadingLogEntryFactory> */
     use HasFactory;
 
-    protected $table = 'book_user';
-
     protected $fillable = [
         'user_id',
         'book_id',
