@@ -3,6 +3,7 @@ import { Head } from '@inertiajs/vue3';
 import AddToReadingList from '@/pages/AddToReadingList.vue';
 import { dashboard } from '@/routes';
 import type { ReadingLogEntry, ReadingStatus } from '@/types';
+import ReadingList from './ReadingList.vue';
 
 defineOptions({
     layout: {
@@ -38,27 +39,7 @@ defineProps<{
         <div
             class="min-h-min flex-1 rounded-xl border p-4 dark:border-sidebar-border"
         >
-            <h1 class="text-2xl">Reading List</h1>
-            <ul v-if="readingLogEntries.length > 0" class="flex flex-col gap-2">
-                <li
-                    v-for="readingLogEntry in readingLogEntries"
-                    :key="readingLogEntry.id"
-                    class="flex items-center gap-2"
-                >
-                    <div>
-                        <strong class="font-bold">{{
-                            readingLogEntry.book.title
-                        }}</strong>
-                        by
-                        <span>{{ readingLogEntry.book.author }}</span>
-                    </div>
-                    <div
-                        class="m-1 block rounded-2xl bg-neutral-100 p-2 text-sm uppercase"
-                    >
-                        {{ readingLogEntry.status_label }}
-                    </div>
-                </li>
-            </ul>
+            <ReadingList :reading-log-entries="readingLogEntries" />
         </div>
     </div>
 </template>
