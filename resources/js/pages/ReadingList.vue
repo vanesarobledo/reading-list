@@ -13,6 +13,7 @@ import {
     DialogTitle,
     DialogTrigger,
 } from '@/components/ui/dialog';
+import { formatDate } from '@/lib/dateUtils';
 import type { ReadingLogEntry } from '@/types';
 
 defineProps<{
@@ -52,15 +53,36 @@ defineProps<{
                     <DialogHeader>
                         <DialogTitle
                             >Delete
-                            <em>{{
-                                readingLogEntry.book.title
-                            }}</em></DialogTitle
+                            <em>{{ readingLogEntry.book.title }}</em> ({{
+                                readingLogEntry.status
+                            }})</DialogTitle
                         >
-                        <DialogDescription
-                            >Are you sure you want to delete
-                            <em>{{ readingLogEntry.book.title }}</em> from your
-                            reading log?</DialogDescription
-                        >
+                        <DialogDescription class="flex flex-col gap-2">
+                            <div>
+                                Are you sure you want to delete the following
+                                reading log entry?
+                            </div>
+                            <div class="flex flex-col gap-2 capitalize">
+                                <div>
+                                    <strong>Title</strong>:
+                                    {{ readingLogEntry.book.title }}
+                                </div>
+                                <div>
+                                    <strong>Status</strong>:
+                                    {{ readingLogEntry.status_label }}
+                                </div>
+                                <div v-if="readingLogEntry.started_at">
+                                    <strong>Started at:</strong>
+                                    {{ formatDate(readingLogEntry.started_at) }}
+                                </div>
+                                <div v-if="readingLogEntry.finished_at">
+                                    <strong>Finished at:</strong>
+                                    {{
+                                        formatDate(readingLogEntry.finished_at)
+                                    }}
+                                </div>
+                            </div>
+                        </DialogDescription>
                     </DialogHeader>
                     <DialogFooter>
                         <DialogClose as-child>
