@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Enums\ReadingStatus;
 use App\Models\ReadingLogEntry;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Validation\Rule;
 use Inertia\Inertia;
 use Symfony\Component\HttpFoundation\RedirectResponse;
@@ -53,9 +54,7 @@ class ReadingLogEntryController extends Controller
 
     public function destroy(ReadingLogEntry $readingLogEntry): RedirectResponse
     {
-        if (auth()->user()->cannot('delete', $readingLogEntry)) {
-            abort(403);
-        }
+        Gate::authorize('delete', $readingLogEntry);
 
         $readingLogEntry->delete();
 
