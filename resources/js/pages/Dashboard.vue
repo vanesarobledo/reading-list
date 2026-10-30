@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import { Head } from '@inertiajs/vue3';
 import AddToReadingList from '@/pages/AddToReadingList.vue';
+import ReadingList from '@/pages/ReadingList.vue';
 import { dashboard } from '@/routes';
 import type { ReadingLogEntry, ReadingStatus } from '@/types';
-import ReadingList from '@/ReadingList.vue';
 
 defineOptions({
     layout: {

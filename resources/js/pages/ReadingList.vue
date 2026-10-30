@@ -55,22 +55,24 @@ defineProps<{
                         <DialogTitle
                             >Delete entry for
                             <em>{{ readingLogEntry.book.title }}</em> ({{
-                                readingLogEntry.status
+                                readingLogEntry.status_label
                             }})</DialogTitle
                         >
-                        <DialogDescription class="flex flex-col gap-2">
+                        <DialogDescription class="flex flex-col gap-2" as="div">
                             <div>
                                 Are you sure you want to delete the following
                                 reading log entry?
                             </div>
-                            <div class="flex flex-col gap-2 capitalize">
+                            <div class="flex flex-col gap-2">
                                 <div>
                                     <strong>Title</strong>:
                                     {{ readingLogEntry.book.title }}
                                 </div>
                                 <div>
                                     <strong>Status</strong>:
-                                    {{ readingLogEntry.status_label }}
+                                    <span class="capitalize">{{
+                                        readingLogEntry.status_label
+                                    }}</span>
                                 </div>
                                 <div v-if="readingLogEntry.started_at">
                                     <strong>Started at:</strong>

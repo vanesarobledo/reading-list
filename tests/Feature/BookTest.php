@@ -12,6 +12,7 @@ test('can store a book', function () {
         'publication_year' => 1967];
 
     $response = $this->actingAs(User::factory()->create())
+        ->from(route('dashboard'))
         ->post(route('book.store'), $payload);
 
     $response->assertRedirectBack();
