@@ -45,7 +45,7 @@ defineProps<{
                 <DialogTrigger as-child>
                     <Button
                         variant="destructive"
-                        :aria-label="`Delete ${readingLogEntry.book.title}`"
+                        :aria-label="`Delete ${readingLogEntry.book.title} entry`"
                     >
                         <Trash2 />
                     </Button>
@@ -53,7 +53,7 @@ defineProps<{
                 <DialogContent>
                     <DialogHeader>
                         <DialogTitle
-                            >Delete
+                            >Delete entry for
                             <em>{{ readingLogEntry.book.title }}</em> ({{
                                 readingLogEntry.status
                             }})</DialogTitle
