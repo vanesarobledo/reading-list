@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { Form } from '@inertiajs/vue3';
 import { Trash2 } from '@lucide/vue';
 import { destroy } from '@/actions/App/Http/Controllers/ReadingLogEntryController';
 import { Button } from '@/components/ui/button';
@@ -17,10 +18,6 @@ import type { ReadingLogEntry } from '@/types';
 defineProps<{
     readingLogEntries: Array<ReadingLogEntry>;
 }>();
-
-const onDelete = (id: number) => {
-    destroy(id);
-};
 </script>
 
 <template>
@@ -71,13 +68,21 @@ const onDelete = (id: number) => {
                                 Cancel
                             </Button>
                         </DialogClose>
-                        <Button
-                            type="button"
-                            variant="destructive"
-                            @click="onDelete(readingLogEntry.id)"
+                        <Form
+                            :action="destroy(readingLogEntry.id)"
+                            :options="{
+                                preserveScroll: true,
+                            }"
+                            v-slot="{ processing }"
                         >
-                            Delete
-                        </Button>
+                            <Button
+                                type="submit"
+                                variant="destructive"
+                                :disabled="processing"
+                            >
+                                Delete
+                            </Button>
+                        </Form>
                     </DialogFooter>
                 </DialogContent>
             </Dialog>
