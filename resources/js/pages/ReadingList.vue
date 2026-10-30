@@ -1,9 +1,26 @@
 <script setup lang="ts">
+import { Trash2 } from '@lucide/vue';
+import { destroy } from '@/actions/App/Http/Controllers/ReadingLogEntryController';
+import { Button } from '@/components/ui/button';
+import {
+    Dialog,
+    DialogClose,
+    DialogContent,
+    DialogDescription,
+    DialogFooter,
+    DialogHeader,
+    DialogTitle,
+    DialogTrigger,
+} from '@/components/ui/dialog';
 import type { ReadingLogEntry } from '@/types';
 
 defineProps<{
     readingLogEntries: Array<ReadingLogEntry>;
 }>();
+
+const onDelete = (id: number) => {
+    destroy(id);
+};
 </script>
 
 <template>
@@ -26,6 +43,44 @@ defineProps<{
             >
                 {{ readingLogEntry.status_label }}
             </div>
+            <Dialog>
+                <DialogTrigger as-child>
+                    <Button variant="destructive">
+                        <Trash2
+                            :aria-label="`Delete ${readingLogEntry.book.title}`"
+                        />
+                    </Button>
+                </DialogTrigger>
+                <DialogContent>
+                    <DialogHeader>
+                        <DialogTitle
+                            >Delete
+                            <em>{{
+                                readingLogEntry.book.title
+                            }}</em></DialogTitle
+                        >
+                        <DialogDescription
+                            >Are you sure you want to delete
+                            <em>{{ readingLogEntry.book.title }}</em> from your
+                            reading log?</DialogDescription
+                        >
+                    </DialogHeader>
+                    <DialogFooter>
+                        <DialogClose as-child>
+                            <Button type="button" variant="secondary">
+                                Cancel
+                            </Button>
+                        </DialogClose>
+                        <Button
+                            type="button"
+                            variant="destructive"
+                            @click="onDelete(readingLogEntry.id)"
+                        >
+                            Delete
+                        </Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
         </li>
     </ul>
 </template>
