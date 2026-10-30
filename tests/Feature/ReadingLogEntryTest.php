@@ -97,13 +97,7 @@ describe('delete a reading log entry', function () {
     test('user can delete a reading log entry', function () {
         $book = Book::factory()->create();
         $user = User::factory()->create();
-        $readingLogEntry = ReadingLogEntry::create([
-            'book_id' => $book->id,
-            'status' => ReadingStatus::WANT_TO_READ->value,
-            'started_at' => null,
-            'finished_at' => null,
-            'user_id' => $user->id,
-        ]);
+        $readingLogEntry = ReadingLogEntry::factory()->for($user)->for($book)->create();
 
         $response = $this->actingAs($user)
             ->from(route('dashboard'))
@@ -121,13 +115,7 @@ describe('delete a reading log entry', function () {
 
         $anotherUser = User::factory()->create();
         $anotherBook = Book::factory()->create();
-        $anotherReadingLogEntry = ReadingLogEntry::create([
-            'book_id' => $anotherBook->id,
-            'status' => ReadingStatus::WANT_TO_READ->value,
-            'started_at' => null,
-            'finished_at' => null,
-            'user_id' => $anotherUser->id,
-        ]);
+        $anotherReadingLogEntry = ReadingLogEntry::factory()->for($anotherUser)->for($anotherBook)->create();
 
         $response = $this->actingAs($user)
             ->delete(route('reading.log.destroy', $anotherReadingLogEntry->id));
@@ -139,13 +127,7 @@ describe('delete a reading log entry', function () {
     test('guest cannot delete a reading log entry', function () {
         $user = User::factory()->create();
         $book = Book::factory()->create();
-        $readingLogEntry = ReadingLogEntry::create([
-            'book_id' => $book->id,
-            'status' => ReadingStatus::WANT_TO_READ->value,
-            'started_at' => null,
-            'finished_at' => null,
-            'user_id' => $user->id,
-        ]);
+        $readingLogEntry = ReadingLogEntry::factory()->for($user)->for($book)->create();
 
         $response = $this->delete(route('reading.log.destroy', $readingLogEntry));
 
@@ -166,15 +148,8 @@ describe('delete a reading log entry', function () {
     test('user with duplicate reading log entries only deletes the individual reading log entry', function () {
         $user = User::factory()->create();
         $book = Book::factory()->create();
-        $readingLogEntryData = [
-            'book_id' => $book->id,
-            'status' => ReadingStatus::WANT_TO_READ->value,
-            'started_at' => null,
-            'finished_at' => null,
-            'user_id' => $user->id,
-        ];
-        $readingLogEntry = ReadingLogEntry::create($readingLogEntryData);
-        $duplicateReadingLogEntry = ReadingLogEntry::create($readingLogEntryData);
+        $readingLogEntry = ReadingLogEntry::factory()->for($user)->for($book)->create();
+        $duplicateReadingLogEntry = ReadingLogEntry::factory()->for($user)->for($book)->create();
 
         $this->actingAs($user)
             ->delete(route('reading.log.destroy', $readingLogEntry->id));
@@ -188,15 +163,9 @@ describe('delete a reading log entry', function () {
         $anotherUser = User::factory()->create();
 
         $book = Book::factory()->create();
-        $readingLogEntryData = [
-            'book_id' => $book->id,
-            'status' => ReadingStatus::WANT_TO_READ->value,
-            'started_at' => null,
-            'finished_at' => null,
-        ];
 
-        $readingLogEntry = ReadingLogEntry::create([...$readingLogEntryData, 'user_id' => $user->id]);
-        $readingLogEntryWithSameBookDifferentUser = ReadingLogEntry::create([...$readingLogEntryData, 'user_id' => $anotherUser->id]);
+        $readingLogEntry = ReadingLogEntry::factory()->for($user)->for($book)->create();
+        $readingLogEntryWithSameBookDifferentUser = ReadingLogEntry::factory()->for($anotherUser)->for($book)->create();
 
         $this->actingAs($user)
             ->delete(route('reading.log.destroy', $readingLogEntry->id));
