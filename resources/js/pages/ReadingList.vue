@@ -43,10 +43,11 @@ defineProps<{
             </div>
             <Dialog>
                 <DialogTrigger as-child>
-                    <Button variant="destructive">
-                        <Trash2
-                            :aria-label="`Delete ${readingLogEntry.book.title}`"
-                        />
+                    <Button
+                        variant="destructive"
+                        :aria-label="`Delete ${readingLogEntry.book.title}`"
+                    >
+                        <Trash2 />
                     </Button>
                 </DialogTrigger>
                 <DialogContent>
