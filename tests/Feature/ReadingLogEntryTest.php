@@ -24,10 +24,12 @@ describe('add a reading log entry', function () {
         ];
 
         $response = $this->actingAs($user)
+            ->from(route('dashboard'))
             ->post(route('reading.log.store'), $payload);
 
         $response->assertValid()->assertRedirectBack();
         $response->assertInertiaFlash('toast');
+        $response->assertInertiaFlash('toast.type', 'success');
         $response->assertInertiaFlash('toast.message', $book->title.' added to reading log');
         $this->assertDatabaseHas((new ReadingLogEntry)->getTable(), $readingLog);
     });
@@ -104,10 +106,12 @@ describe('delete a reading log entry', function () {
         ]);
 
         $response = $this->actingAs($user)
+            ->from(route('dashboard'))
             ->delete(route('reading.log.destroy', $readingLogEntry));
 
-        $response->assertValid()->assertRedirectBack();
+        $response->assertRedirectBack();
         $response->assertInertiaFlash('toast');
+        $response->assertInertiaFlash('toast.type', 'success');
         $response->assertInertiaFlash('toast.message', $book->title.' removed from reading log');
         $this->assertModelMissing($readingLogEntry);
     });
@@ -128,7 +132,7 @@ describe('delete a reading log entry', function () {
         $response = $this->actingAs($user)
             ->delete(route('reading.log.destroy', $anotherReadingLogEntry->id));
 
-        $response->assertStatus(403);
+        $response->assertForbidden();
         $this->assertModelExists($anotherReadingLogEntry);
     });
 
@@ -179,7 +183,7 @@ describe('delete a reading log entry', function () {
         $this->assertModelExists($duplicateReadingLogEntry);
     });
 
-    test('user cannot delete a reading log entry with the same book belonging to another user', function () {
+    test('user deleting an entry does not delete another user\'s entry for the same book', function () {
         $user = User::factory()->create();
         $anotherUser = User::factory()->create();
 
