@@ -12,7 +12,8 @@ test('can store a book', function () {
         'publication_year' => 1967];
 
     $response = $this->actingAs(User::factory()->create())
-        ->post('/book', $payload);
+        ->from(route('dashboard'))
+        ->post(route('book.store'), $payload);
 
     $response->assertRedirectBack();
     $response->assertInertiaFlash('book');
@@ -25,7 +26,7 @@ test('can store a book', function () {
 
 test('rejects invalid input with validation errors', function () {
     $response = $this->actingAs(User::factory()->create())
-        ->post('/book', [
+        ->post(route('book.store'), [
             'title' => '',
         ]);
 
@@ -37,7 +38,7 @@ test('returns a paginated json structure for the book list', closure: function (
     Book::factory()->create();
 
     $response = $this->actingAs(User::factory()->create())
-        ->get('/book');
+        ->get(route('book.index'));
 
     $response->assertOk();
     $response->assertJsonStructure(structure: [
@@ -62,7 +63,7 @@ test('limits the number of books returned to number per page sent', function () 
     Book::factory($numBooks)->create();
 
     $response = $this->actingAs(User::factory()->create())
-        ->get('/book?'.http_build_query(['per_page' => $expectPerPage]));
+        ->get(route('book.index', ['per_page' => $expectPerPage]));
 
     $response->assertOk();
     $response->assertJsonCount($expectPerPage, 'data');
@@ -73,7 +74,7 @@ test('returns max number of results when requested per page is greater than max'
     Book::factory($greaterThanMax)->create();
 
     $response = $this->actingAs(User::factory()->create())
-        ->get('/book?'.http_build_query(['per_page' => $greaterThanMax]));
+        ->get(route('book.index', ['per_page' => $greaterThanMax]));
 
     $response->assertOk();
     $response->assertJsonCount(BookController::MAX_PER_PAGE, 'data');
@@ -83,7 +84,7 @@ test('returns default number per page when per page query string is a non-positi
     Book::factory(BookController::DEFAULT_PER_PAGE)->create();
 
     $response = $this->actingAs(User::factory()->create())
-        ->get('/book?'.http_build_query([['per_page' => $nonPositiveIntPerPage]]));
+        ->get(route('book.index', ['per_page' => $nonPositiveIntPerPage]));
 
     $response->assertOk();
     $response->assertJsonCount(BookController::DEFAULT_PER_PAGE, 'data');
@@ -125,7 +126,7 @@ test('includes multiple matching results with query', function () {
     $query = 'one';
 
     $response = $this->actingAs(User::factory()->create())
-        ->get('/book?'.http_build_query(['search' => $query]));
+        ->get(route('book.index', ['search' => $query]));
 
     $response->assertOk();
     $response->assertJsonCount(2, 'data');
@@ -147,7 +148,7 @@ test('includes author data in the paginated response', function () {
     ]);
 
     $response = $this->actingAs(User::factory()->create())
-        ->get('/book?'.http_build_query([['search' => $author]]));
+        ->get(route('book.index', ['search' => $author]));
 
     $response->assertOk();
     $response->assertJsonFragment([
@@ -168,7 +169,7 @@ test('excludes non-matching books from search results', function () {
     );
 
     $response = $this->actingAs(User::factory()->create())
-        ->get('/book?'.http_build_query(['search' => 'one']));
+        ->get(route('book.index', ['search' => 'one']));
 
     $response->assertOk();
     $response->assertJsonMissing([
@@ -191,7 +192,7 @@ test('reports the total book count separately from the page size', function () {
     Book::factory($totalBookCount)->create();
 
     $response = $this->actingAs(User::factory()->create())
-        ->get('/book?'.http_build_query([['per_page' => $expectPerPage]]));
+        ->get(route('book.index', ['per_page' => $expectPerPage]));
 
     $response->assertOk();
     $response->assertJsonFragment([

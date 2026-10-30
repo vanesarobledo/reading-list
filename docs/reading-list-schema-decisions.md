@@ -1,5 +1,7 @@
 # Reading List — Schema & Design Decisions
 
+> **Stale:** since #23, `book_user` is now `reading_log_entries`, and `ReadingLogEntry` is a plain `Model` that `User` and `Book` each `hasMany`, replacing the `Pivot` model. This doc still describes the original design.
+
 ## Core structure
 - **Relationship**: `User` and `Book` are many-to-many. A pivot table is the right approach.
 - **Table name**: `book_user` — Laravel convention is singular model names, alphabetical order, joined by underscore. (Not `user_book` or `users_books`.)
