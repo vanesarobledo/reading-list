@@ -1,4 +1,4 @@
-**Status**: agreed via `/grill-me`, backend in progress.
+**Status**: agreed via `/grill-me`, backend and frontend implemented and manually verified. PR #22 open, review and merge remaining.
 **Issue**: #12.
 **Mode**: Socratic. This doc describes *what* and *why*, not *how* line-by-line. Contracts are fixed; implementation is yours. Concepts to look up are named, not coded.
 
@@ -62,13 +62,14 @@ Test 5 catches any delete scoped by book instead of by entry `id`: by `user_id` 
 
 ## Frontend
 
-### `resources/js/pages/Dashboard.vue`
+### `resources/js/pages/ReadingList.vue` (extracted from `Dashboard.vue`)
 
-- [ ] Add a delete button to each reading log entry `<li>`.
-- [ ] Clicking it opens a confirmation using the installed shadcn `Dialog`. The dialog names the book (e.g. "Remove *Dune* from your reading log?") so a misclick on a reread is obvious.
-- [ ] Confirm sends the `DELETE` via the generated Wayfinder action for `ReadingLogEntryController::destroy` (same pattern as `store`). Cancel closes the dialog and does nothing.
-- [ ] Reference: `resources/js/components/DeleteUser.vue` is the starter kit's confirm-then-delete dialog. Study it, don't copy it wholesale.
-- [ ] Decide: one dialog per row, or one shared dialog that knows which entry is selected? Either is acceptable; be able to say why you picked it.
+- [x] Add a delete button to each reading log entry `<li>`.
+- [x] Clicking it opens a confirmation using the installed shadcn `Dialog`. The dialog names the book (e.g. "Remove *Dune* from your reading log?") so a misclick on a reread is obvious.
+- [x] Confirm sends the `DELETE` via the generated Wayfinder action for `ReadingLogEntryController::destroy` (same pattern as `store`). Cancel closes the dialog and does nothing.
+- [x] Reference: `resources/js/components/DeleteUser.vue` is the starter kit's confirm-then-delete dialog. Study it, don't copy it wholesale.
+- [x] Decide: one dialog per row, or one shared dialog that knows which entry is selected? Either is acceptable; be able to say why you picked it. **Picked one dialog per row:** simpler than keeping state on which entry is selected.
+  - Feedback from Claude: each dialog also closes over its own `readingLogEntry`, so it can't name or delete the wrong book through stale selection state. The cost is one `Dialog` instance per row, likely negligible at this list size if Reka UI only mounts `DialogContent` while open (from memory, not verified). A shared dialog becomes the better choice if the list grows very long or rows need to share dialog logic.
 - Plain styling only. Polish belongs to #14.
 
 ## Laravel concepts to look up
@@ -93,18 +94,18 @@ Test 5 catches any delete scoped by book instead of by entry `id`: by `user_id` 
 ## Workflow checklist
 - [x] Branch off `main`.
 - [x] Commit the first failing test, push, open a **draft PR** with `closes #12`.
-- [ ] Commit order: controller tests → controller/route/policy → tests passing → frontend.
-- [ ] Manual check in the browser (below).
+- [x] Commit order: controller tests → controller/route/policy → tests passing → frontend.
+- [x] Manual check in the browser (below).
 - [ ] Mark the PR ready, get it reviewed (human or AI), address the review. AI review last.
 - [ ] Merge only when CI is green.
-- [ ] Fill in the Actual column and the issue's time tracking.
+- [ ] Fill in the Actual column and the issue's time tracking. Actual column filled in on GitHub, except code review.
 
 ## Manual verification checklist
 
 Run `php artisan test --filter=ReadingLogEntry` first, then on `/dashboard`:
 
-- [ ] Click delete → dialog appears naming the right book.
-- [ ] Cancel → nothing deleted, dialog closes.
-- [ ] Confirm → entry disappears from the list, success toast shows the book title.
-- [ ] With two entries for the same book, delete one → the other is still listed.
-- [ ] Network tab shows a `DELETE` request (Inertia sends it as a real `DELETE` or spoofs it; note which).
+- [x] Click delete → dialog appears naming the right book.
+- [x] Cancel → nothing deleted, dialog closes.
+- [x] Confirm → entry disappears from the list, success toast shows the book title.
+- [x] With two entries for the same book, delete one → the other is still listed.
+- [x] Network tab shows a `DELETE` request (Inertia sends it as a real `DELETE` or spoofs it; note which). **Real `DELETE`.**
