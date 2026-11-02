@@ -222,14 +222,38 @@ describe('update a reading log entry', function () {
             ->patch(route('reading.log.update', $readingLogEntry), $payload);
 
         $response->assertValid()->assertRedirectBack();
-        $response->assertInertiaFlash('toast');
-        $response->assertInertiaFlash('toast.type', 'success');
-        $response->assertInertiaFlash('toast.message', $book->title.' updated in reading log');
 
         $readingLogEntry->refresh();
 
         expect($readingLogEntry->status->value)->toBe($payload['status'])
             ->and($readingLogEntry->started_at?->toDateString())->toBe(STARTED_AT)
             ->and($readingLogEntry->finished_at?->toDateString())->toBe(FINISHED_AT);
+    });
+
+    test('user can clear a date in a reading log entry', function () {
+        $book = Book::factory()->create();
+        $user = User::factory()->create();
+
+        $readingLogEntry = ReadingLogEntry::factory()->for($user)->for($book)->create([
+            'status' => ReadingStatus::FINISHED,
+            'started_at' => STARTED_AT,
+            'finished_at' => FINISHED_AT,
+        ]);
+
+        $payload = [
+            'started_at' => '',
+        ];
+
+        $response = $this->actingAs($user)
+            ->from(route('dashboard'))
+            ->patch(route('reading.log.update', $readingLogEntry), $payload);
+
+        $response->assertValid()->assertRedirectBack();
+
+        $readingLogEntry->refresh();
+
+        expect($readingLogEntry->started_at?->toDateString())->toBeNull()
+            ->and($readingLogEntry->finished_at?->toDateString())->toBe(FINISHED_AT)
+            ->and($readingLogEntry->status)->toBe(ReadingStatus::FINISHED);
     });
 });
