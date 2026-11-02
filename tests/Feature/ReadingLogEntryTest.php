@@ -174,3 +174,32 @@ describe('delete a reading log entry', function () {
         $this->assertModelExists($readingLogEntryWithSameBookDifferentUser);
     });
 });
+
+describe('update a reading log entry', function () {
+    test('user can update a reading log entry', function () {
+        $book = Book::factory()->create();
+        $user = User::factory()->create();
+
+        $readingLogEntry = ReadingLogEntry::factory()->for($user)->for($book)->create();
+        $payload = [
+            'status' => ReadingStatus::FINISHED->value,
+            'started_at' => '2026-08-01',
+            'finished_at' => '2026-10-31',
+        ];
+
+        $response = $this->actingAs($user)
+            ->from(route('dashboard'))
+            ->patch(route('reading.log.update', $readingLogEntry), $payload);
+
+        $response->assertValid()->assertRedirectBack();
+        $response->assertInertiaFlash('toast');
+        $response->assertInertiaFlash('toast.type', 'success');
+        $response->assertInertiaFlash('toast.message', $book->title.' updated in reading log');
+
+        $readingLogEntry->refresh();
+
+        expect($readingLogEntry->status)->toBe($payload['status'])
+            ->and($readingLogEntry->started_at?->toDateString())->toBe($payload['started_at'])
+            ->and($readingLogEntry->finished_at?->toDateString())->toBe($payload['finished_at']);
+    });
+});
