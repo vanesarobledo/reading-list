@@ -5,6 +5,8 @@ use App\Models\Book;
 use App\Models\ReadingLogEntry;
 use App\Models\User;
 
+const STARTED_AT = '2026-08-01';
+const FINISHED_AT = '2026-10-31';
 describe('add a reading log entry', function () {
     test('user can add a book to their reading log entry', function () {
         $book = Book::factory()->create();
@@ -183,8 +185,8 @@ describe('update a reading log entry', function () {
         $readingLogEntry = ReadingLogEntry::factory()->for($user)->for($book)->create();
         $payload = [
             'status' => ReadingStatus::FINISHED->value,
-            'started_at' => '2026-08-01',
-            'finished_at' => '2026-10-31',
+            'started_at' => STARTED_AT,
+            'finished_at' => FINISHED_AT,
         ];
 
         $response = $this->actingAs($user)
@@ -201,5 +203,33 @@ describe('update a reading log entry', function () {
         expect($readingLogEntry->status->value)->toBe($payload['status'])
             ->and($readingLogEntry->started_at?->toDateString())->toBe($payload['started_at'])
             ->and($readingLogEntry->finished_at?->toDateString())->toBe($payload['finished_at']);
+    });
+
+    test('user can partially update a reading log entry', function () {
+        $book = Book::factory()->create();
+        $user = User::factory()->create();
+
+        $readingLogEntry = ReadingLogEntry::factory()->for($user)->for($book)->create([
+            'started_at' => STARTED_AT,
+            'finished_at' => FINISHED_AT,
+        ]);
+        $payload = [
+            'status' => ReadingStatus::FINISHED->value,
+        ];
+
+        $response = $this->actingAs($user)
+            ->from(route('dashboard'))
+            ->patch(route('reading.log.update', $readingLogEntry), $payload);
+
+        $response->assertValid()->assertRedirectBack();
+        $response->assertInertiaFlash('toast');
+        $response->assertInertiaFlash('toast.type', 'success');
+        $response->assertInertiaFlash('toast.message', $book->title.' updated in reading log');
+
+        $readingLogEntry->refresh();
+
+        expect($readingLogEntry->status->value)->toBe($payload['status'])
+            ->and($readingLogEntry->started_at?->toDateString())->toBe(STARTED_AT)
+            ->and($readingLogEntry->finished_at?->toDateString())->toBe(FINISHED_AT);
     });
 });
