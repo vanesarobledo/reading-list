@@ -47,10 +47,17 @@ class ReadingLogEntryController extends Controller
     //        //
     //    }
 
-    //    public function update(Request $request, ReadingLogEntry $readingLogEntry)
-    //    {
-    //        //
-    //    }
+    public function update(Request $request, ReadingLogEntry $readingLogEntry)
+    {
+        $readingLogEntry->update($request->toArray());
+
+        return Inertia::flash([
+            'toast' => [
+                'type' => 'success',
+                'message' => $readingLogEntry->book->title.' updated in reading log',
+            ],
+        ])->back();
+    }
 
     public function destroy(ReadingLogEntry $readingLogEntry): RedirectResponse
     {

@@ -13,6 +13,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('/book', [BookController::class, 'store'])->name('book.store');
     Route::post('/reading-log', [ReadingLogEntryController::class, 'store'])->name('reading.log.store');
     Route::delete('/reading-log/{readingLogEntry}', [ReadingLogEntryController::class, 'destroy'])->name('reading.log.destroy');
+    Route::patch('/reading-log/{readingLogEntry}', [ReadingLogEntryController::class, 'update'])->name('reading.log.update');
 });
 
 require __DIR__.'/settings.php';

@@ -198,7 +198,7 @@ describe('update a reading log entry', function () {
 
         $readingLogEntry->refresh();
 
-        expect($readingLogEntry->status)->toBe($payload['status'])
+        expect($readingLogEntry->status->value)->toBe($payload['status'])
             ->and($readingLogEntry->started_at?->toDateString())->toBe($payload['started_at'])
             ->and($readingLogEntry->finished_at?->toDateString())->toBe($payload['finished_at']);
     });
