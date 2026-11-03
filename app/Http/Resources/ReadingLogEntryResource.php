@@ -23,8 +23,8 @@ class ReadingLogEntryResource extends JsonResource
             'book' => BookResource::make($this->book)->resolve(),
             'status' => $this->status,
             'status_label' => $this->status->label(),
-            'started_at' => $this->started_at,
-            'finished_at' => $this->finished_at,
+            'started_at' => $this->started_at?->toDateString(),
+            'finished_at' => $this->finished_at?->toDateString(),
         ];
     }
 }
