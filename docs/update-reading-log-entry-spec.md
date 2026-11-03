@@ -59,7 +59,7 @@ Write these against the current code and watch them fail (red) before implementi
 
 - [x] 1. **Owner can update their entry.** Change all three fields. Assert each new value, redirect back, and the toast flash (same assertion style as the `store` test).
 - [x] 2. **(gap)** **Partial update leaves omitted fields untouched.** The entry has a status and both dates. Send only `status`. Assert the status changed and both dates are exactly what they were.
-- [x] 3. **(gap)** **Owner can clear a date.** The entry has both dates. Send *only* `started_at: null`. Assert `started_at` is now `null`, and `status` and `finished_at` are unchanged.
+- [x] 3. **(gap)** **Owner can clear a date.** The entry has both dates. Send *only* `started_at: ''` (what an emptied date input sends). Assert `started_at` is now `null`, and `status` and `finished_at` are unchanged.
 
 **Authorization and routing**
 
@@ -88,7 +88,7 @@ Write these against the current code and watch them fail (red) before implementi
 
 - **"Entry unchanged" is the real assertion in 4, 5, 8 and 9.** `assertForbidden()` alone passes even if the controller saved the change and *then* authorized. Send a payload that *would* change the entry, then `refresh()` it and check it didn't.
 - **Test 2 is the core `PATCH` test.** It catches a controller that builds the update from `$request->input(...)` for all three fields, which would silently null out the dates you didn't send.
-- **Test 3 sends the null date alone on purpose.** It catches the obvious way to implement "at least one field": Laravel's `required_without_all` treats `null` as missing (`allFailingRequired()` calls `validateRequired()` on each field, and `null` fails it). So with that rule, `{ "started_at": null }` gets rejected, and a user can't clear a date in a request that sends nothing else. Test 9 and test 3 together pin down "present, even if null".
+- **Test 3 sends the emptied date alone on purpose.** `ConvertEmptyStringsToNull` turns `''` into `null` before validation, so sending `''` also covers the middleware step a real form goes through. It catches the obvious way to implement "at least one field": Laravel's `required_without_all` treats `null` as missing (`allFailingRequired()` calls `validateRequired()` on each field, and `null` fails it). So with that rule, `{ "started_at": null }` gets rejected, and a user can't clear a date in a request that sends nothing else. Test 9 and test 3 together pin down "present, even if null".
 - **Test 7 sends a valid field too.** If it sent only `user_id` and `book_id`, the empty-request rule (test 9) would reject it, and the test would pass for the wrong reason. The valid status change proves the request went through *and* the ids were filtered out.
 - **Test 8's last case** catches a controller that applies fields one by one as they validate.
 - **Test 10 vs. 11.** Test 11 can't replace test 10. If the update were scoped by `user_id` + `book_id`, both entries would get the new status, but in test 11 the other entry *already has* that status, so the bug would be invisible. Test 10 changes the other entry's values to something it doesn't already have.

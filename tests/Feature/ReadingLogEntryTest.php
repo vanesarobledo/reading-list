@@ -334,15 +334,18 @@ describe('update a reading log entry', function () {
         $readingLogEntry->refresh();
 
         expect($readingLogEntry->status)->toBe(ReadingStatus::FINISHED)
-            ->and($readingLogEntry->user_id)->not->toBe($anotherUser->id)
-            ->and($readingLogEntry->book_id)->not->toBe($anotherBook->id);
+            ->and($readingLogEntry->user_id)->toBe($user->id)
+            ->and($readingLogEntry->book_id)->toBe($book->id);
     });
 
     test('returns field validation error with invalid input', function ($payload, $field) {
         $book = Book::factory()->create();
         $user = User::factory()->create();
 
-        $readingLogEntry = ReadingLogEntry::factory()->for($book)->for($user)->create();
+        $readingLogEntry = ReadingLogEntry::factory()->for($book)->for($user)->create([
+            'started_at' => STARTED_AT,
+            'finished_at' => FINISHED_AT,
+        ]);
 
         $response = $this->actingAs($user)
             ->from(route('dashboard'))
@@ -353,8 +356,8 @@ describe('update a reading log entry', function () {
         $updatedReadingLogEntry = $readingLogEntry->fresh();
 
         expect($updatedReadingLogEntry->status)->toBe($readingLogEntry->status)
-            ->and($updatedReadingLogEntry->started_at)->toBe($readingLogEntry->started_at)
-            ->and($updatedReadingLogEntry->finished_at)->toBe($readingLogEntry->finished_at);
+            ->and($updatedReadingLogEntry->started_at?->toDateString())->toBe($readingLogEntry->started_at?->toDateString())
+            ->and($updatedReadingLogEntry->finished_at?->toDateString())->toBe($readingLogEntry->finished_at?->toDateString());
     })->with([
         'invalid started_at' => [['started_at' => 'not a date'], 'started_at'],
         'invalid finished_at' => [['finished_at' => 'not a date'], 'finished_at'],
@@ -382,7 +385,7 @@ describe('update a reading log entry', function () {
             ->from(route('dashboard'))
             ->patch(route('reading.log.update', $readingLogEntry), $payload);
 
-        $response->assertInvalid()->assertRedirect(route('dashboard'));
+        $response->assertInvalid(['validation'])->assertRedirect(route('dashboard'));
 
         $updatedReadingLogEntry = $readingLogEntry->fresh();
 
@@ -439,8 +442,6 @@ describe('update a reading log entry', function () {
         $readingLogEntry->refresh();
         $duplicateReadingLogEntry->refresh();
 
-        $this->assertModelExists($duplicateReadingLogEntry);
-
         expect($readingLogEntry->status)->toBe(ReadingStatus::FINISHED)
             ->and($duplicateReadingLogEntry->status)->toBe(ReadingStatus::FINISHED);
     });
@@ -463,8 +464,8 @@ describe('update a reading log entry', function () {
         $readingLogEntry->refresh();
         $readingLogEntryWithSameBookDifferentUser->refresh();
 
-        expect($readingLogEntry->status)->toBe(ReadingStatus::FINISHED);
-        expect($readingLogEntryWithSameBookDifferentUser->status)->toBe(ReadingStatus::WANT_TO_READ);
+        expect($readingLogEntry->status)->toBe(ReadingStatus::FINISHED)
+            ->and($readingLogEntryWithSameBookDifferentUser->status)->toBe(ReadingStatus::WANT_TO_READ);
     });
 
 });

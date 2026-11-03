@@ -59,7 +59,7 @@ class ReadingLogEntryController extends Controller
         ]);
 
         if ($validated === []) {
-            throw ValidationException::withMessages(['errors' => 'Request cannot be empty.']);
+            throw ValidationException::withMessages(['validation' => 'At least one of status, started_at or finished_at is required.']);
         }
 
         $readingLogEntry->update($validated);

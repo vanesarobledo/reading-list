@@ -27,7 +27,7 @@ defineProps<{
 
 const isOpen = ref(false);
 
-const status = useId();
+const statusId = useId();
 const started_at = useId();
 const finished_at = useId();
 </script>
@@ -65,26 +65,25 @@ const finished_at = useId();
                     >
                         <div class="flex flex-col">
                             <div>
-                                <label class="font-bold" :for="status"
+                                <label class="font-bold" :for="statusId"
                                     >Status</label
                                 ><em aria-label="required">*</em>
                             </div>
                             <select
                                 class="rounded-md border border-neutral-300 p-1"
                                 name="status"
-                                :id="status"
+                                :id="statusId"
                                 required
                             >
                                 <option
-                                    v-for="statusId in statuses"
-                                    :key="statusId.value"
-                                    :value="statusId.value"
+                                    v-for="status in statuses"
+                                    :key="status.value"
+                                    :value="status.value"
                                     :selected="
-                                        statusId.value ===
-                                        readingLogEntry.status
+                                        status.value === readingLogEntry.status
                                     "
                                 >
-                                    {{ statusId.label }}
+                                    {{ status.label }}
                                 </option>
                             </select>
                             <InputError :message="errors.status" />
