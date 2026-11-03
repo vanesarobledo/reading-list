@@ -5,6 +5,8 @@ use App\Models\Book;
 use App\Models\ReadingLogEntry;
 use App\Models\User;
 
+use function Pest\Laravel\patch;
+
 const STARTED_AT = '2026-08-01';
 const FINISHED_AT = '2026-10-31';
 describe('add a reading log entry', function () {
@@ -255,5 +257,56 @@ describe('update a reading log entry', function () {
         expect($readingLogEntry->started_at?->toDateString())->toBeNull()
             ->and($readingLogEntry->finished_at?->toDateString())->toBe(FINISHED_AT)
             ->and($readingLogEntry->status)->toBe(ReadingStatus::FINISHED);
+    });
+
+    test('user cannot update another user\'s reading log entry', function () {
+        $book = Book::factory()->create();
+        $user = User::factory()->create();
+        $anotherUser = User::factory()->create();
+
+        $readingLogEntry = ReadingLogEntry::factory()->for($anotherUser)->for($book)->create();
+
+        $payload = [
+            'status' => ReadingStatus::FINISHED->value,
+        ];
+
+        $response = $this->actingAs($user)
+            ->from(route('dashboard'))
+            ->patch(route('reading.log.update', $readingLogEntry), $payload);
+
+        $response->assertForbidden();
+
+        $readingLogEntry->refresh();
+
+        expect($readingLogEntry->status->value)->not->toBe($payload['status']);
+    });
+
+    test('guest cannot update a user\'s reading log entry', function () {
+        $book = Book::factory()->create();
+        $user = User::factory()->create();
+
+        $readingLogEntry = ReadingLogEntry::factory()->for($user)->for($book)->create();
+
+        $payload = [
+            'status' => ReadingStatus::FINISHED->value,
+        ];
+
+        $response = patch(route('reading.log.update', $readingLogEntry), $payload);
+
+        $response->assertRedirect(route('login'));
+
+        $readingLogEntry->refresh();
+
+        expect($readingLogEntry->status->value)->not->toBe($payload['status']);
+    });
+
+    test('returns 404 if reading log entry does not exist', function () {
+        $user = User::factory()->create();
+        $nonExistentReadingLogEntryId = 9999;
+
+        $response = $this->actingAs($user)
+            ->patch(route('reading.log.update', $nonExistentReadingLogEntryId));
+
+        $response->assertNotFound();
     });
 });
