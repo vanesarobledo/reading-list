@@ -338,7 +338,7 @@ describe('update a reading log entry', function () {
             ->and($readingLogEntry->book_id)->not->toBe($anotherBook->id);
     });
 
-    test('returns field validation error with invalid input', function ($payload) {
+    test('returns field validation error with invalid input', function ($payload, $field) {
         $book = Book::factory()->create();
         $user = User::factory()->create();
 
@@ -348,7 +348,7 @@ describe('update a reading log entry', function () {
             ->from(route('dashboard'))
             ->patch(route('reading.log.update', $readingLogEntry), $payload);
 
-        $response->assertInvalid()->assertRedirect(route('dashboard'));
+        $response->assertInvalid([$field])->assertRedirect(route('dashboard'));
 
         $updatedReadingLogEntry = $readingLogEntry->fresh();
 
@@ -356,18 +356,18 @@ describe('update a reading log entry', function () {
             ->and($updatedReadingLogEntry->started_at)->toBe($readingLogEntry->started_at)
             ->and($updatedReadingLogEntry->finished_at)->toBe($readingLogEntry->finished_at);
     })->with([
-        'invalid started_at' => [['started_at' => 'not a date']],
-        'invalid finished_at' => [['finished_at' => 'not a date']],
-        'invalid status' => [['status' => 'not a valid status']],
-        'null status' => [['status' => null]],
+        'invalid started_at' => [['started_at' => 'not a date'], 'started_at'],
+        'invalid finished_at' => [['finished_at' => 'not a date'], 'finished_at'],
+        'invalid status' => [['status' => 'not a valid status'], 'status'],
+        'null status' => [['status' => null], 'status'],
         'valid status and invalid started_at' => [[
             'status' => ReadingStatus::FINISHED->value,
             'started_at' => 'not a date',
-        ]],
+        ], 'started_at'],
         'valid status and invalid finished_at' => [[
             'status' => ReadingStatus::FINISHED->value,
             'finished_at' => 'not a date',
-        ]],
+        ], 'finished_at', ],
     ]);
 
     test('rejects request that does not contain valid keys to update', function () {
