@@ -408,11 +408,12 @@ describe('update a reading log entry', function () {
             ->patch(route('reading.log.update', $readingLogEntry), $payload);
 
         $readingLogEntry->refresh();
+        $duplicateReadingLogEntry->refresh();
 
         expect($readingLogEntry->status)->toBe(ReadingStatus::FINISHED)
             ->and($readingLogEntry->started_at?->toDateString())->toBe(STARTED_AT)
             ->and($readingLogEntry->finished_at?->toDateString())->toBe(FINISHED_AT)
-            ->and($duplicateReadingLogEntry->status)->not->toBe(ReadingStatus::FINISHED)
+            ->and($duplicateReadingLogEntry->status)->toBe(ReadingStatus::WANT_TO_READ)
             ->and($duplicateReadingLogEntry->started_at?->toDateString())->not->toBe(STARTED_AT)
             ->and($duplicateReadingLogEntry->finished_at?->toDateString())->not->toBe(FINISHED_AT);
     });
@@ -422,10 +423,10 @@ describe('update a reading log entry', function () {
         $user = User::factory()->create();
 
         $readingLogEntry = ReadingLogEntry::factory()->for($book)->for($user)->create([
-            'status' => ReadingStatus::FINISHED->value,
+            'status' => ReadingStatus::READING->value,
         ]);
         $duplicateReadingLogEntry = ReadingLogEntry::factory()->for($book)->for($user)->create([
-            'status' => ReadingStatus::READING->value,
+            'status' => ReadingStatus::FINISHED->value,
         ]);
 
         $payload = [
@@ -436,9 +437,12 @@ describe('update a reading log entry', function () {
             ->patch(route('reading.log.update', $readingLogEntry), $payload);
 
         $readingLogEntry->refresh();
+        $duplicateReadingLogEntry->refresh();
 
-        expect($readingLogEntry->status)->toBe(ReadingStatus::FINISHED);
         $this->assertModelExists($duplicateReadingLogEntry);
+
+        expect($readingLogEntry->status)->toBe(ReadingStatus::FINISHED)
+            ->and($duplicateReadingLogEntry->status)->toBe(ReadingStatus::FINISHED);
     });
 
     test('user updating a reading log entry does not update the reading log entry for another user with the same book', function () {
@@ -457,9 +461,10 @@ describe('update a reading log entry', function () {
             ->patch(route('reading.log.update', $readingLogEntry), $payload);
 
         $readingLogEntry->refresh();
+        $readingLogEntryWithSameBookDifferentUser->refresh();
 
         expect($readingLogEntry->status)->toBe(ReadingStatus::FINISHED);
-        expect($readingLogEntryWithSameBookDifferentUser->status)->not->toBe(ReadingStatus::FINISHED);
+        expect($readingLogEntryWithSameBookDifferentUser->status)->toBe(ReadingStatus::WANT_TO_READ);
     });
 
 });
