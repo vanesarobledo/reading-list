@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { Form } from '@inertiajs/vue3';
-import { Trash2 } from '@lucide/vue';
+import { Pen, Trash2 } from '@lucide/vue';
 import { destroy } from '@/actions/App/Http/Controllers/ReadingLogEntryController';
 import { Button } from '@/components/ui/button';
 import {
@@ -41,6 +41,18 @@ defineProps<{
             >
                 {{ readingLogEntry.status_label }}
             </div>
+
+            <Dialog>
+                <DialogTrigger as-child>
+                    <Button
+                        variant="secondary"
+                        :aria-label="`Update ${readingLogEntry.book.title} entry`"
+                    >
+                        <Pen />
+                    </Button>
+                </DialogTrigger>
+            </Dialog>
+
             <Dialog>
                 <DialogTrigger as-child>
                     <Button
