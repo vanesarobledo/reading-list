@@ -309,4 +309,31 @@ describe('update a reading log entry', function () {
 
         $response->assertNotFound();
     });
+
+    test('user cannot change book_id or user_id of reading log entry', function () {
+        $book = Book::factory()->create();
+        $anotherBook = Book::factory()->create();
+        $user = User::factory()->create();
+        $anotherUser = User::factory()->create();
+
+        $readingLogEntry = ReadingLogEntry::factory()->for($book)->for($user)->create();
+
+        $payload = [
+            'status' => ReadingStatus::FINISHED->value,
+            'user_id' => $anotherUser->id,
+            'book_id' => $anotherBook->id,
+        ];
+
+        $response = $this->actingAs($user)
+            ->from(route('dashboard'))
+            ->patch(route('reading.log.update', $readingLogEntry), $payload);
+
+        $response->assertValid()->assertRedirect(route('dashboard'));
+
+        $readingLogEntry->refresh();
+
+        expect($readingLogEntry->status)->toBe(ReadingStatus::FINISHED);
+        expect($readingLogEntry->user())->not->toBe($anotherUser);
+        expect($readingLogEntry->book_id)->not->toBe($anotherBook->id);
+    });
 });
