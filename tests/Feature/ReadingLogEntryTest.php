@@ -336,4 +336,36 @@ describe('update a reading log entry', function () {
         expect($readingLogEntry->user_id)->not->toBe($anotherUser->id);
         expect($readingLogEntry->book_id)->not->toBe($anotherBook->id);
     });
+
+    test('returns field validation error with invalid input', function ($payload) {
+        $book = Book::factory()->create();
+        $user = User::factory()->create();
+
+        $readingLogEntry = ReadingLogEntry::factory()->for($book)->for($user)->create();
+
+        $response = $this->actingAs($user)
+            ->from(route('dashboard'))
+            ->patch(route('reading.log.update', $readingLogEntry), $payload);
+
+        $response->assertInvalid()->assertRedirect(route('dashboard'));
+
+        $updatedReadingLogEntry = $readingLogEntry->fresh();
+
+        expect($updatedReadingLogEntry->status)->toBe($readingLogEntry->status)
+            ->and($updatedReadingLogEntry->started_at)->toBe($readingLogEntry->started_at)
+            ->and($updatedReadingLogEntry->finished_at)->toBe($readingLogEntry->finished_at);
+    })->with([
+        'invalid started_at' => [['started_at' => 'not a date']],
+        'invalid finished_at' => [['finished_at' => 'not a date']],
+        'invalid status' => [['status' => 'not a valid status']],
+        'null status' => [['status' => null]],
+        'valid status and invalid started_at' => [[
+            'status' => ReadingStatus::FINISHED->value,
+            'started_at' => 'not a date',
+        ]],
+        'valid status and invalid finished_at' => [[
+            'status' => ReadingStatus::FINISHED->value,
+            'finished_at' => 'not a date',
+        ]],
+    ]);
 });
