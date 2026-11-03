@@ -44,11 +44,9 @@ const onSuccess = () => {
     <h2 class="mb-4 text-2xl">Add a Book to Your Reading List</h2>
 
     <div class="flex flex-col gap-6">
-        <div class="grid grid-cols-2 gap-4">
-            <SearchBook v-model:selected="selectedBook" />
+        <SearchBook v-model:selected="selectedBook" />
 
-            <AddBook v-model:selected="selectedBook" />
-        </div>
+        <AddBook v-model:selected="selectedBook" />
 
         <Form
             class="flex flex-col gap-4"
