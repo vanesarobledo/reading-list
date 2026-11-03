@@ -5,6 +5,10 @@ use App\Models\Book;
 use App\Models\ReadingLogEntry;
 use App\Models\User;
 
+use function Pest\Laravel\patch;
+
+const STARTED_AT = '2026-08-01';
+const FINISHED_AT = '2026-10-31';
 describe('add a reading log entry', function () {
     test('user can add a book to their reading log entry', function () {
         $book = Book::factory()->create();
@@ -173,4 +177,295 @@ describe('delete a reading log entry', function () {
         $this->assertModelMissing($readingLogEntry);
         $this->assertModelExists($readingLogEntryWithSameBookDifferentUser);
     });
+});
+
+describe('update a reading log entry', function () {
+    test('user can update a reading log entry', function () {
+        $book = Book::factory()->create();
+        $user = User::factory()->create();
+
+        $readingLogEntry = ReadingLogEntry::factory()->for($user)->for($book)->create();
+        $payload = [
+            'status' => ReadingStatus::FINISHED->value,
+            'started_at' => STARTED_AT,
+            'finished_at' => FINISHED_AT,
+        ];
+
+        $response = $this->actingAs($user)
+            ->from(route('dashboard'))
+            ->patch(route('reading.log.update', $readingLogEntry), $payload);
+
+        $response->assertValid()->assertRedirectBack();
+        $response->assertInertiaFlash('toast');
+        $response->assertInertiaFlash('toast.type', 'success');
+        $response->assertInertiaFlash('toast.message', $book->title.' updated in reading log');
+
+        $readingLogEntry->refresh();
+
+        expect($readingLogEntry->status->value)->toBe($payload['status'])
+            ->and($readingLogEntry->started_at?->toDateString())->toBe($payload['started_at'])
+            ->and($readingLogEntry->finished_at?->toDateString())->toBe($payload['finished_at']);
+    });
+
+    test('user can partially update a reading log entry', function () {
+        $book = Book::factory()->create();
+        $user = User::factory()->create();
+
+        $readingLogEntry = ReadingLogEntry::factory()->for($user)->for($book)->create([
+            'started_at' => STARTED_AT,
+            'finished_at' => FINISHED_AT,
+        ]);
+        $payload = [
+            'status' => ReadingStatus::FINISHED->value,
+        ];
+
+        $response = $this->actingAs($user)
+            ->from(route('dashboard'))
+            ->patch(route('reading.log.update', $readingLogEntry), $payload);
+
+        $response->assertValid()->assertRedirectBack();
+
+        $readingLogEntry->refresh();
+
+        expect($readingLogEntry->status->value)->toBe($payload['status'])
+            ->and($readingLogEntry->started_at?->toDateString())->toBe(STARTED_AT)
+            ->and($readingLogEntry->finished_at?->toDateString())->toBe(FINISHED_AT);
+    });
+
+    test('user can clear a date in a reading log entry', function () {
+        $book = Book::factory()->create();
+        $user = User::factory()->create();
+
+        $readingLogEntry = ReadingLogEntry::factory()->for($user)->for($book)->create([
+            'status' => ReadingStatus::FINISHED,
+            'started_at' => STARTED_AT,
+            'finished_at' => FINISHED_AT,
+        ]);
+
+        $payload = [
+            'started_at' => '',
+        ];
+
+        $response = $this->actingAs($user)
+            ->from(route('dashboard'))
+            ->patch(route('reading.log.update', $readingLogEntry), $payload);
+
+        $response->assertValid()->assertRedirectBack();
+
+        $readingLogEntry->refresh();
+
+        expect($readingLogEntry->started_at?->toDateString())->toBeNull()
+            ->and($readingLogEntry->finished_at?->toDateString())->toBe(FINISHED_AT)
+            ->and($readingLogEntry->status)->toBe(ReadingStatus::FINISHED);
+    });
+
+    test('user cannot update another user\'s reading log entry', function () {
+        $book = Book::factory()->create();
+        $user = User::factory()->create();
+        $anotherUser = User::factory()->create();
+
+        $readingLogEntry = ReadingLogEntry::factory()->for($anotherUser)->for($book)->create();
+
+        $payload = [
+            'status' => ReadingStatus::FINISHED->value,
+        ];
+
+        $response = $this->actingAs($user)
+            ->from(route('dashboard'))
+            ->patch(route('reading.log.update', $readingLogEntry), $payload);
+
+        $response->assertForbidden();
+
+        $readingLogEntry->refresh();
+
+        expect($readingLogEntry->status->value)->not->toBe($payload['status']);
+    });
+
+    test('guest cannot update a user\'s reading log entry', function () {
+        $book = Book::factory()->create();
+        $user = User::factory()->create();
+
+        $readingLogEntry = ReadingLogEntry::factory()->for($user)->for($book)->create();
+
+        $payload = [
+            'status' => ReadingStatus::FINISHED->value,
+        ];
+
+        $response = patch(route('reading.log.update', $readingLogEntry), $payload);
+
+        $response->assertRedirect(route('login'));
+
+        $readingLogEntry->refresh();
+
+        expect($readingLogEntry->status->value)->not->toBe($payload['status']);
+    });
+
+    test('returns 404 if reading log entry does not exist', function () {
+        $user = User::factory()->create();
+        $nonExistentReadingLogEntryId = 9999;
+
+        $response = $this->actingAs($user)
+            ->patch(route('reading.log.update', $nonExistentReadingLogEntryId));
+
+        $response->assertNotFound();
+    });
+
+    test('user cannot change book_id or user_id of reading log entry', function () {
+        $book = Book::factory()->create();
+        $anotherBook = Book::factory()->create();
+        $user = User::factory()->create();
+        $anotherUser = User::factory()->create();
+
+        $readingLogEntry = ReadingLogEntry::factory()->for($book)->for($user)->create();
+
+        $payload = [
+            'status' => ReadingStatus::FINISHED->value,
+            'user_id' => $anotherUser->id,
+            'book_id' => $anotherBook->id,
+        ];
+
+        $response = $this->actingAs($user)
+            ->from(route('dashboard'))
+            ->patch(route('reading.log.update', $readingLogEntry), $payload);
+
+        // Assert response is valid - book_id and user_id is simply ignored
+        $response->assertValid()->assertRedirect(route('dashboard'));
+
+        $readingLogEntry->refresh();
+
+        expect($readingLogEntry->status)->toBe(ReadingStatus::FINISHED)
+            ->and($readingLogEntry->user_id)->toBe($user->id)
+            ->and($readingLogEntry->book_id)->toBe($book->id);
+    });
+
+    test('returns field validation error with invalid input', function ($payload, $field) {
+        $book = Book::factory()->create();
+        $user = User::factory()->create();
+
+        $readingLogEntry = ReadingLogEntry::factory()->for($book)->for($user)->create([
+            'started_at' => STARTED_AT,
+            'finished_at' => FINISHED_AT,
+        ]);
+
+        $response = $this->actingAs($user)
+            ->from(route('dashboard'))
+            ->patch(route('reading.log.update', $readingLogEntry), $payload);
+
+        $response->assertInvalid([$field])->assertRedirect(route('dashboard'));
+
+        $updatedReadingLogEntry = $readingLogEntry->fresh();
+
+        expect($updatedReadingLogEntry->status)->toBe($readingLogEntry->status)
+            ->and($updatedReadingLogEntry->started_at?->toDateString())->toBe($readingLogEntry->started_at?->toDateString())
+            ->and($updatedReadingLogEntry->finished_at?->toDateString())->toBe($readingLogEntry->finished_at?->toDateString());
+    })->with([
+        'invalid started_at' => [['started_at' => 'not a date'], 'started_at'],
+        'invalid finished_at' => [['finished_at' => 'not a date'], 'finished_at'],
+        'invalid status' => [['status' => 'not a valid status'], 'status'],
+        'null status' => [['status' => null], 'status'],
+        'valid status and invalid started_at' => [[
+            'status' => ReadingStatus::FINISHED->value,
+            'started_at' => 'not a date',
+        ], 'started_at'],
+        'valid status and invalid finished_at' => [[
+            'status' => ReadingStatus::FINISHED->value,
+            'finished_at' => 'not a date',
+        ], 'finished_at', ],
+    ]);
+
+    test('rejects request that does not contain valid keys to update', function () {
+        $book = Book::factory()->create();
+        $user = User::factory()->create();
+
+        $readingLogEntry = ReadingLogEntry::factory()->for($book)->for($user)->create();
+
+        $payload = [];
+
+        $response = $this->actingAs($user)
+            ->from(route('dashboard'))
+            ->patch(route('reading.log.update', $readingLogEntry), $payload);
+
+        $response->assertInvalid(['validation'])->assertRedirect(route('dashboard'));
+
+        $updatedReadingLogEntry = $readingLogEntry->fresh();
+
+        expect($updatedReadingLogEntry->status)->toBe($readingLogEntry->status)
+            ->and($updatedReadingLogEntry->started_at)->toBe($readingLogEntry->started_at)
+            ->and($updatedReadingLogEntry->finished_at)->toBe($readingLogEntry->finished_at);
+    });
+
+    test('user with duplicate reading log entries only updates the individual reading log entry', function () {
+        $book = Book::factory()->create();
+        $user = User::factory()->create();
+
+        $readingLogEntry = ReadingLogEntry::factory()->for($book)->for($user)->create();
+        $duplicateReadingLogEntry = ReadingLogEntry::factory()->for($book)->for($user)->create();
+
+        $payload = [
+            'status' => ReadingStatus::FINISHED->value,
+            'started_at' => STARTED_AT,
+            'finished_at' => FINISHED_AT,
+        ];
+
+        $this->actingAs($user)
+            ->patch(route('reading.log.update', $readingLogEntry), $payload);
+
+        $readingLogEntry->refresh();
+        $duplicateReadingLogEntry->refresh();
+
+        expect($readingLogEntry->status)->toBe(ReadingStatus::FINISHED)
+            ->and($readingLogEntry->started_at?->toDateString())->toBe(STARTED_AT)
+            ->and($readingLogEntry->finished_at?->toDateString())->toBe(FINISHED_AT)
+            ->and($duplicateReadingLogEntry->status)->toBe(ReadingStatus::WANT_TO_READ)
+            ->and($duplicateReadingLogEntry->started_at?->toDateString())->not->toBe(STARTED_AT)
+            ->and($duplicateReadingLogEntry->finished_at?->toDateString())->not->toBe(FINISHED_AT);
+    });
+
+    test('user with reading log entries with the same book can update an individual entry to the same status and keeps both entries', function () {
+        $book = Book::factory()->create();
+        $user = User::factory()->create();
+
+        $readingLogEntry = ReadingLogEntry::factory()->for($book)->for($user)->create([
+            'status' => ReadingStatus::READING->value,
+        ]);
+        $duplicateReadingLogEntry = ReadingLogEntry::factory()->for($book)->for($user)->create([
+            'status' => ReadingStatus::FINISHED->value,
+        ]);
+
+        $payload = [
+            'status' => ReadingStatus::FINISHED->value,
+        ];
+
+        $this->actingAs($user)
+            ->patch(route('reading.log.update', $readingLogEntry), $payload);
+
+        $readingLogEntry->refresh();
+        $duplicateReadingLogEntry->refresh();
+
+        expect($readingLogEntry->status)->toBe(ReadingStatus::FINISHED)
+            ->and($duplicateReadingLogEntry->status)->toBe(ReadingStatus::FINISHED);
+    });
+
+    test('user updating a reading log entry does not update the reading log entry for another user with the same book', function () {
+        $book = Book::factory()->create();
+        $user = User::factory()->create();
+        $anotherUser = User::factory()->create();
+
+        $readingLogEntry = ReadingLogEntry::factory()->for($book)->for($user)->create();
+        $readingLogEntryWithSameBookDifferentUser = ReadingLogEntry::factory()->for($anotherUser)->for($book)->create();
+
+        $payload = [
+            'status' => ReadingStatus::FINISHED->value,
+        ];
+
+        $this->actingAs($user)
+            ->patch(route('reading.log.update', $readingLogEntry), $payload);
+
+        $readingLogEntry->refresh();
+        $readingLogEntryWithSameBookDifferentUser->refresh();
+
+        expect($readingLogEntry->status)->toBe(ReadingStatus::FINISHED)
+            ->and($readingLogEntryWithSameBookDifferentUser->status)->toBe(ReadingStatus::WANT_TO_READ);
+    });
+
 });

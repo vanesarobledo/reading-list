@@ -5,6 +5,7 @@ import { computed } from 'vue';
 import { ref } from 'vue';
 import { store } from '@/actions/App/Http/Controllers/ReadingLogEntryController';
 import InputError from '@/components/InputError.vue';
+import { Button } from '@/components/ui/button';
 import type { Book, ReadingLogEntry, ReadingStatus } from '@/types';
 import AddBook from './AddBook.vue';
 import SearchBook from './SearchBook.vue';
@@ -150,9 +151,10 @@ const onSuccess = () => {
                     <InputError :message="errors.finished_at" />
                 </div>
                 <div class="flex justify-between">
-                    <button
+                    <Button
                         type="submit"
-                        class="rounded-md bg-neutral-300 p-3 font-bold hover:bg-black hover:text-white"
+                        variant="default"
+                        class="hover:cursor-pointer"
                         :disabled="processing"
                     >
                         {{
@@ -160,7 +162,7 @@ const onSuccess = () => {
                                 ? 'Adding Reading Log Entry...'
                                 : 'Add Reading Log Entry'
                         }}
-                    </button>
+                    </Button>
                 </div>
             </fieldset>
         </Form>

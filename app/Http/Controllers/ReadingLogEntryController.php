@@ -7,6 +7,7 @@ use App\Models\ReadingLogEntry;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Validation\Rule;
+use Illuminate\Validation\ValidationException;
 use Inertia\Inertia;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 
@@ -47,10 +48,29 @@ class ReadingLogEntryController extends Controller
     //        //
     //    }
 
-    //    public function update(Request $request, ReadingLogEntry $readingLogEntry)
-    //    {
-    //        //
-    //    }
+    public function update(Request $request, ReadingLogEntry $readingLogEntry): RedirectResponse
+    {
+        Gate::authorize('update', $readingLogEntry);
+
+        $validated = $request->validate([
+            'status' => [Rule::enum(ReadingStatus::class)],
+            'started_at' => 'nullable|date',
+            'finished_at' => 'nullable|date',
+        ]);
+
+        if ($validated === []) {
+            throw ValidationException::withMessages(['validation' => 'At least one of status, started_at or finished_at is required.']);
+        }
+
+        $readingLogEntry->update($validated);
+
+        return Inertia::flash([
+            'toast' => [
+                'type' => 'success',
+                'message' => $readingLogEntry->book->title.' updated in reading log',
+            ],
+        ])->back();
+    }
 
     public function destroy(ReadingLogEntry $readingLogEntry): RedirectResponse
     {

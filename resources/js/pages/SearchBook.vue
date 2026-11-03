@@ -55,7 +55,7 @@ const errorMessages: Record<BookSearchError, string> = {
                     <legend>Select a book:</legend>
                     <ul>
                         <li v-for="result in results" :key="result.id">
-                            <label>
+                            <label class="hover:cursor-pointer">
                                 <input
                                     type="radio"
                                     name="book"
