@@ -332,9 +332,9 @@ describe('update a reading log entry', function () {
 
         $readingLogEntry->refresh();
 
-        expect($readingLogEntry->status)->toBe(ReadingStatus::FINISHED);
-        expect($readingLogEntry->user_id)->not->toBe($anotherUser->id);
-        expect($readingLogEntry->book_id)->not->toBe($anotherBook->id);
+        expect($readingLogEntry->status)->toBe(ReadingStatus::FINISHED)
+            ->and($readingLogEntry->user_id)->not->toBe($anotherUser->id)
+            ->and($readingLogEntry->book_id)->not->toBe($anotherBook->id);
     });
 
     test('returns field validation error with invalid input', function ($payload) {
