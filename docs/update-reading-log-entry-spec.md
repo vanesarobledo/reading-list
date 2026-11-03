@@ -17,7 +17,7 @@ As a user, I can edit a reading log entry I added. This is the "U" of CRUD: an e
 - **Only `status`, `started_at` and `finished_at` are editable.** The entry's `book_id` and `user_id` never change through this endpoint.
 - **403 for someone else's entry**, not 404. Same reasoning as delete: Laravel's default when a policy denies, entry IDs aren't secret.
 - **Pessimistic update.** The frontend waits for the server, then Inertia's redirect re-renders the list from fresh props.
-- **One reusable form component** for the status and date fields, shared by `AddToReadingList.vue` (book chosen via search/add) and the edit dialog (book fixed by the entry being edited).
+- **No shared form component yet.** The edit dialog duplicates the status and date fields from `AddToReadingList.vue`. Extraction is deferred until a trigger in "Shared form component (deferred)" below fires.
 - **One edit dialog per row**, like delete.
 - **Reread safety is still a domain risk.** Update one *entry* (by its id), never "the user's entry for this book".
 - **Duplicate `book_id` + `status` entries are intended.** Updating an entry so it matches another entry's book and status is the reread flow working as designed, and a test pins that down.
@@ -57,32 +57,32 @@ Write these against the current code and watch them fail (red) before implementi
 
 **Happy path**
 
-- [ ] 1. **Owner can update their entry.** Change all three fields. Assert each new value, redirect back, and the toast flash (same assertion style as the `store` test).
-- [ ] 2. **(gap)** **Partial update leaves omitted fields untouched.** The entry has a status and both dates. Send only `status`. Assert the status changed and both dates are exactly what they were.
-- [ ] 3. **(gap)** **Owner can clear a date.** The entry has both dates. Send *only* `started_at: null`. Assert `started_at` is now `null`, and `status` and `finished_at` are unchanged.
+- [x] 1. **Owner can update their entry.** Change all three fields. Assert each new value, redirect back, and the toast flash (same assertion style as the `store` test).
+- [x] 2. **(gap)** **Partial update leaves omitted fields untouched.** The entry has a status and both dates. Send only `status`. Assert the status changed and both dates are exactly what they were.
+- [x] 3. **(gap)** **Owner can clear a date.** The entry has both dates. Send *only* `started_at: null`. Assert `started_at` is now `null`, and `status` and `finished_at` are unchanged.
 
 **Authorization and routing**
 
-- [ ] 4. **Another user cannot update it.** `403`, and the entry is unchanged.
-- [ ] 5. **Guest cannot update it.** Redirect to login, and the entry is unchanged.
-- [ ] 6. **Unknown id returns `404`.**
+- [x] 4. **Another user cannot update it.** `403`, and the entry is unchanged.
+- [x] 5. **Guest cannot update it.** Redirect to login, and the entry is unchanged.
+- [x] 6. **Unknown id returns `404`.**
 
 **Data integrity**
 
-- [ ] 7. **Owner cannot change the entry's `user_id` or `book_id`.** Send a valid `status` change *plus* another user's id and another book's id. Assert the status changed, and `user_id` and `book_id` did not.
-- [ ] 8. **Field validation** (a Pest dataset). Each case gets a validation error on the right field, and the entry is unchanged:
+- [x] 7. **Owner cannot change the entry's `user_id` or `book_id`.** Send a valid `status` change *plus* another user's id and another book's id. Assert the status changed, and `user_id` and `book_id` did not.
+- [x] 8. **Field validation** (a Pest dataset). Each case gets a validation error on the right field, and the entry is unchanged:
   - `started_at` is not a date
   - `finished_at` is not a date
   - `status` is not a `ReadingStatus` value
   - **(gap)** `status` is `null`
   - **(gap)** a valid `status` change alongside an invalid date: *nothing* is saved, including the valid status
-- [ ] 9. **(gap)** **Empty request is rejected.** No editable fields sent: validation error, entry unchanged.
+- [x] 9. **(gap)** **Empty request is rejected.** No editable fields sent: validation error, entry unchanged.
 
 **Rereads and other users**
 
-- [ ] 10. **Rereads:** a user has two entries for the same book. Updating one leaves the other's fields untouched.
-- [ ] 11. **Updating into a duplicate is allowed:** a user has two entries for the same book with different statuses. Update one to the other's status. Both entries still exist, both have that status.
-- [ ] 12. **Other users' entries for the same book:** user A and user B each have an entry for the same book. A updates theirs; B's is untouched.
+- [x] 10. **Rereads:** a user has two entries for the same book. Updating one leaves the other's fields untouched.
+- [x] 11. **Updating into a duplicate is allowed:** a user has two entries for the same book with different statuses. Update one to the other's status. Both entries still exist, both have that status.
+- [x] 12. **Other users' entries for the same book:** user A and user B each have an entry for the same book. A updates theirs; B's is untouched.
 
 ### Why these tests, and what each one catches
 
@@ -120,16 +120,31 @@ Two kinds of behaviour have no tests, for different reasons:
 
 ## Frontend
 
-### Shared form component (extracted from `AddToReadingList.vue`)
+### Shared form component (deferred)
 
-- [ ] Extract the status and date fields into a component used by both the add form and the edit dialog.
-- [ ] Decide where the boundary is. The add form's book selector and its duplicate-entry warning stay in `AddToReadingList.vue`; the update flow has neither.
-- [ ] The edit form needs initial values; the add form starts empty.
+**Decision:** duplicate the status and date fields in the edit dialog instead of extracting a shared component. Two copies isn't enough to tell what's actually shared (Rule of Three, Fowler's *Refactoring* ch. 2), and the status options already come from one place, the `statuses` prop.
+
+Options considered:
+
+- **Extract the whole form:** rejected. Nearly everything varies between add and edit (`:action`, `@success`, book source and display, duplicate warning, initial values, button text), so the component would turn into a bag of props and `v-if`s. See Sandi Metz, [The Wrong Abstraction](https://sandimetz.com/blog/2016/1/20/the-wrong-abstraction).
+- **Extract only the fields (status, `started_at`, `finished_at`):** the best boundary when extraction happens, since these are the entry's editable attributes. The book selector and duplicate-entry warning would stay in `AddToReadingList.vue`. Deferred because the plumbing (passing `errors` in as a prop, a `v-model` on status for `isDuplicateEntry`, handling element ids, initial values) costs more than about 45 lines of duplicated markup.
+- **Duplicate:** chosen. The known cost is drift: a change to one form's fields has to be copied to the other by hand.
+
+Revisit and extract the fields when:
+
+- a new editable field is added to reading log entries (it must appear in both forms), or
+- a third form needs these fields, or
+- the two copies drift apart by accident.
+
+### Edit form fields (duplicated from `AddToReadingList.vue`)
+
+- [ ] Copy the status `<select>` and the two date inputs into the edit dialog. Leave out the book selector and the duplicate-entry warning.
+- [ ] Pre-fill the fields with the entry's current values. The add form starts empty.
 
 ### `resources/js/pages/ReadingList.vue`
 
 - [ ] Add an edit button to each reading log entry `<li>`.
-- [ ] Clicking it opens a shadcn `Dialog` with the shared form, pre-filled with the entry's current values. The dialog names the book.
+- [ ] Clicking it opens a shadcn `Dialog` with the edit form, pre-filled with the entry's current values. The dialog names the book.
 - [ ] Submit sends the `PATCH` via the generated Wayfinder action for `ReadingLogEntryController::update`. Cancel closes the dialog and changes nothing.
 - [ ] The submit button is disabled until a field has changed. `<Form>` exposes `isDirty` as a slot prop (present in `@inertiajs/vue3` 3.6.1, `dist/index.js` ~line 1169).
 - [ ] Show validation errors in the dialog (`InputError`).
