@@ -328,6 +328,7 @@ describe('update a reading log entry', function () {
             ->from(route('dashboard'))
             ->patch(route('reading.log.update', $readingLogEntry), $payload);
 
+        // Assert response is valid - book_id and user_id is simply ignored
         $response->assertValid()->assertRedirect(route('dashboard'));
 
         $readingLogEntry->refresh();
@@ -404,7 +405,6 @@ describe('update a reading log entry', function () {
         ];
 
         $this->actingAs($user)
-            ->from(route('dashboard'))
             ->patch(route('reading.log.update', $readingLogEntry), $payload);
 
         $readingLogEntry->refresh();
@@ -416,4 +416,5 @@ describe('update a reading log entry', function () {
             ->and($duplicateReadingLogEntry->started_at?->toDateString())->not->toBe(STARTED_AT)
             ->and($duplicateReadingLogEntry->finished_at?->toDateString())->not->toBe(FINISHED_AT);
     });
+
 });
