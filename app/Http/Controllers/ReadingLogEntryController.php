@@ -48,7 +48,7 @@ class ReadingLogEntryController extends Controller
     //        //
     //    }
 
-    public function update(Request $request, ReadingLogEntry $readingLogEntry)
+    public function update(Request $request, ReadingLogEntry $readingLogEntry): RedirectResponse
     {
         Gate::authorize('update', $readingLogEntry);
 
