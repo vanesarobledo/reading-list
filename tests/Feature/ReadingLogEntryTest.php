@@ -441,4 +441,25 @@ describe('update a reading log entry', function () {
         $this->assertModelExists($duplicateReadingLogEntry);
     });
 
+    test('user updating a reading log entry does not update the reading log entry for another user with the same book', function () {
+        $book = Book::factory()->create();
+        $user = User::factory()->create();
+        $anotherUser = User::factory()->create();
+
+        $readingLogEntry = ReadingLogEntry::factory()->for($book)->for($user)->create();
+        $readingLogEntryWithSameBookDifferentUser = ReadingLogEntry::factory()->for($anotherUser)->for($book)->create();
+
+        $payload = [
+            'status' => ReadingStatus::FINISHED->value,
+        ];
+
+        $this->actingAs($user)
+            ->patch(route('reading.log.update', $readingLogEntry), $payload);
+
+        $readingLogEntry->refresh();
+
+        expect($readingLogEntry->status)->toBe(ReadingStatus::FINISHED);
+        expect($readingLogEntryWithSameBookDifferentUser->status)->not->toBe(ReadingStatus::FINISHED);
+    });
+
 });
