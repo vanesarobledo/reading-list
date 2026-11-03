@@ -25,6 +25,7 @@ defineProps<{
     <Dialog>
         <DialogTrigger as-child>
             <Button
+                class="hover:cursor-pointer hover:bg-black hover:text-white"
                 variant="destructive"
                 :aria-label="`Delete ${readingLogEntry.book.title} entry`"
             >
@@ -68,7 +69,13 @@ defineProps<{
             </DialogHeader>
             <DialogFooter>
                 <DialogClose as-child>
-                    <Button type="button" variant="secondary"> Cancel </Button>
+                    <Button
+                        class="hover:cursor-pointer"
+                        type="button"
+                        variant="secondary"
+                    >
+                        Cancel
+                    </Button>
                 </DialogClose>
                 <Form
                     :action="destroy(readingLogEntry.id)"
@@ -78,11 +85,12 @@ defineProps<{
                     v-slot="{ processing }"
                 >
                     <Button
+                        class="hover:cursor-pointer"
                         type="submit"
                         variant="destructive"
                         :disabled="processing"
                     >
-                        Delete
+                        {{ processing ? 'Deleting...' : 'Delete' }}
                     </Button>
                 </Form>
             </DialogFooter>

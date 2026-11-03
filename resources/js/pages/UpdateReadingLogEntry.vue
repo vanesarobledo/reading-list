@@ -36,6 +36,7 @@ const finished_at = useId();
     <Dialog v-model:open="isOpen">
         <DialogTrigger as-child>
             <Button
+                class="hover:cursor-pointer hover:bg-black hover:text-white"
                 variant="secondary"
                 :aria-label="`Update ${readingLogEntry.book.title} entry`"
             >
@@ -124,16 +125,21 @@ const finished_at = useId();
                 </DialogDescription>
                 <DialogFooter>
                     <DialogClose as-child>
-                        <Button type="button" variant="secondary">
+                        <Button
+                            class="hover:cursor-pointer"
+                            type="button"
+                            variant="secondary"
+                        >
                             Cancel
                         </Button>
                     </DialogClose>
                     <Button
+                        class="hover:cursor-pointer"
                         type="submit"
                         variant="default"
                         :disabled="processing"
                     >
-                        Update
+                        {{ processing ? 'Updating...' : 'Update' }}
                     </Button>
                 </DialogFooter>
             </Form>

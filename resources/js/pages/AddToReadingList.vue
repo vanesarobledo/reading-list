@@ -5,6 +5,7 @@ import { computed } from 'vue';
 import { ref } from 'vue';
 import { store } from '@/actions/App/Http/Controllers/ReadingLogEntryController';
 import InputError from '@/components/InputError.vue';
+import { Button } from '@/components/ui/button';
 import type { Book, ReadingLogEntry, ReadingStatus } from '@/types';
 import AddBook from './AddBook.vue';
 import SearchBook from './SearchBook.vue';
@@ -43,9 +44,11 @@ const onSuccess = () => {
     <h2 class="mb-4 text-2xl">Add a Book to Your Reading List</h2>
 
     <div class="flex flex-col gap-6">
-        <SearchBook v-model:selected="selectedBook" />
+        <div class="grid grid-cols-2 gap-4">
+            <SearchBook v-model:selected="selectedBook" />
 
-        <AddBook v-model:selected="selectedBook" />
+            <AddBook v-model:selected="selectedBook" />
+        </div>
 
         <Form
             class="flex flex-col gap-4"
@@ -150,9 +153,10 @@ const onSuccess = () => {
                     <InputError :message="errors.finished_at" />
                 </div>
                 <div class="flex justify-between">
-                    <button
+                    <Button
                         type="submit"
-                        class="rounded-md bg-neutral-300 p-3 font-bold hover:bg-black hover:text-white"
+                        variant="default"
+                        class="hover:cursor-pointer"
                         :disabled="processing"
                     >
                         {{
@@ -160,7 +164,7 @@ const onSuccess = () => {
                                 ? 'Adding Reading Log Entry...'
                                 : 'Add Reading Log Entry'
                         }}
-                    </button>
+                    </Button>
                 </div>
             </fieldset>
         </Form>

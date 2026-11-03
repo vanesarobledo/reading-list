@@ -4,6 +4,7 @@ import { Form } from '@inertiajs/vue3';
 import { ref } from 'vue';
 import { store } from '@/actions/App/Http/Controllers/BookController';
 import InputError from '@/components/InputError.vue';
+import { Button } from '@/components/ui/button';
 import type { Book } from '@/types';
 
 const selected = defineModel<Book | null>('selected');
@@ -19,127 +20,132 @@ const onSuccess = (page: Page) => {
 </script>
 
 <template>
-    <button
-        type="button"
-        class="rounded-md bg-neutral-800 p-3 font-bold text-white hover:cursor-pointer hover:bg-black hover:text-white"
-        @click="showAddBook = !showAddBook"
-    >
-        Add a book manually
-    </button>
-
-    <Form
-        class="flex flex-col gap-4"
-        aria-labelledby="add-book-legend"
-        :action="store()"
-        v-show="showAddBook"
-        :options="{ preserveScroll: true }"
-        #default="{ errors, processing }"
-        @success="onSuccess"
-        resetOnSuccess
-    >
-        <fieldset
-            class="flex flex-col gap-2 rounded-lg border border-neutral-200 p-3 shadow-md"
+    <div class="flex flex-col gap-3">
+        <Button
+            type="button"
+            variant="default"
+            class="hover:cursor-pointer"
+            @click="showAddBook = !showAddBook"
         >
-            <legend class="text-lg font-bold" id="add-book-legend">
-                Add a Book Manually
-            </legend>
-            <div class="flex flex-col">
-                <div>
-                    <label class="font-bold" for="title">Title</label>
-                    <em aria-label="required">*</em>
-                </div>
-                <input
-                    type="text"
-                    class="rounded-md border border-neutral-300 p-1"
-                    name="title"
-                    id="title"
-                    aria-describedby="title-error"
-                    required
-                />
-                <InputError :message="errors.title" id="title-error" />
-            </div>
-            <div class="flex flex-col">
-                <div>
-                    <label class="font-bold" for="author">Author</label
-                    ><em aria-label="required">*</em>
-                </div>
-                <input
-                    type="text"
-                    class="rounded-md border border-neutral-300 p-1"
-                    name="author"
-                    id="author"
-                    aria-describedby="author-error"
-                    required
-                />
-                <InputError :message="errors.author" id="author-error" />
-            </div>
-            <div class="flex gap-3">
-                <div class="flex grow flex-col">
+            Add a book manually
+        </Button>
+
+        <Form
+            class="flex flex-col gap-4"
+            aria-labelledby="add-book-legend"
+            :action="store()"
+            v-show="showAddBook"
+            :options="{ preserveScroll: true }"
+            #default="{ errors, processing }"
+            @success="onSuccess"
+            resetOnSuccess
+        >
+            <fieldset
+                class="flex flex-col gap-2 rounded-lg border border-neutral-200 p-3 shadow-md"
+            >
+                <legend class="text-lg font-bold" id="add-book-legend">
+                    Add a Book Manually
+                </legend>
+                <div class="flex flex-col">
                     <div>
-                        <label class="font-bold" for="publisher"
-                            >Publisher</label
-                        >
+                        <label class="font-bold" for="title">Title</label>
+                        <em aria-label="required">*</em>
                     </div>
                     <input
                         type="text"
                         class="rounded-md border border-neutral-300 p-1"
-                        name="publisher"
-                        aria-describedby="publisher-error"
-                        id="publisher"
+                        name="title"
+                        id="title"
+                        aria-describedby="title-error"
+                        required
                     />
-                    <InputError
-                        :message="errors.publisher"
-                        id="publisher-error"
-                    />
+                    <InputError :message="errors.title" id="title-error" />
                 </div>
-                <div class="flex grow-0 flex-col">
+                <div class="flex flex-col">
                     <div>
-                        <label class="font-bold" for="publication_year"
-                            >Publication Year</label
-                        >
+                        <label class="font-bold" for="author">Author</label
+                        ><em aria-label="required">*</em>
                     </div>
                     <input
-                        type="number"
+                        type="text"
                         class="rounded-md border border-neutral-300 p-1"
-                        name="publication_year"
-                        id="publication_year"
-                        aria-describedby="publication-year-error"
+                        name="author"
+                        id="author"
+                        aria-describedby="author-error"
+                        required
                     />
-                    <InputError
-                        :message="errors.publication_year"
-                        id="publication-year-error"
+                    <InputError :message="errors.author" id="author-error" />
+                </div>
+                <div class="flex gap-3">
+                    <div class="flex grow flex-col">
+                        <div>
+                            <label class="font-bold" for="publisher"
+                                >Publisher</label
+                            >
+                        </div>
+                        <input
+                            type="text"
+                            class="rounded-md border border-neutral-300 p-1"
+                            name="publisher"
+                            aria-describedby="publisher-error"
+                            id="publisher"
+                        />
+                        <InputError
+                            :message="errors.publisher"
+                            id="publisher-error"
+                        />
+                    </div>
+                    <div class="flex grow-0 flex-col">
+                        <div>
+                            <label class="font-bold" for="publication_year"
+                                >Publication Year</label
+                            >
+                        </div>
+                        <input
+                            type="number"
+                            class="rounded-md border border-neutral-300 p-1"
+                            name="publication_year"
+                            id="publication_year"
+                            aria-describedby="publication-year-error"
+                        />
+                        <InputError
+                            :message="errors.publication_year"
+                            id="publication-year-error"
+                        />
+                    </div>
+                </div>
+                <div class="flex flex-col">
+                    <div>
+                        <label class="font-bold" for="isbn">ISBN</label>
+                    </div>
+                    <input
+                        type="text"
+                        class="rounded-md border border-neutral-300 p-1"
+                        name="isbn"
+                        id="isbn"
+                        aria-describedby="isbn-error"
                     />
+                    <InputError :message="errors.isbn" id="isbn-error" />
                 </div>
+            </fieldset>
+            <div class="flex justify-between">
+                <Button
+                    type="submit"
+                    class="w-1/4 hover:cursor-pointer"
+                    variant="default"
+                    :disabled="processing"
+                >
+                    {{ processing ? 'Adding Book...' : 'Add Book' }}
+                </Button>
+                <Button
+                    type="button"
+                    class="w-1/4 hover:cursor-pointer"
+                    variant="secondary"
+                    @click="showAddBook = !showAddBook"
+                >
+                    Close
+                </Button>
             </div>
-            <div class="flex flex-col">
-                <div>
-                    <label class="font-bold" for="isbn">ISBN</label>
-                </div>
-                <input
-                    type="text"
-                    class="rounded-md border border-neutral-300 p-1"
-                    name="isbn"
-                    id="isbn"
-                    aria-describedby="isbn-error"
-                />
-                <InputError :message="errors.isbn" id="isbn-error" />
-            </div>
-        </fieldset>
-        <div class="flex justify-between">
-            <button
-                type="submit"
-                class="w-1/4 rounded-md bg-neutral-300 p-3 font-bold hover:bg-black hover:text-white"
-                :disabled="processing"
-            >
-                {{ processing ? 'Adding Book...' : 'Add Book' }}
-            </button>
-            <button
-                type="button"
-                class="w-1/4 rounded-md bg-neutral-800 p-3 font-bold text-white hover:bg-black hover:text-white"
-                @click="showAddBook = !showAddBook"
-            >
-                Close
-            </button>
-        </div>
-    </Form>
+        </Form>
+    </div>
 </template>

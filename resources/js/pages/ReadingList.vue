@@ -14,31 +14,33 @@ defineProps<{
 
 <template>
     <h1 class="text-2xl">Reading List</h1>
-    <ul v-if="readingLogEntries.length > 0" class="flex flex-col gap-2">
+    <ul v-if="readingLogEntries.length > 0" class="flex flex-col gap-4">
         <li
             v-for="readingLogEntry in readingLogEntries"
             :key="readingLogEntry.id"
-            class="flex items-center gap-2"
+            class="flex items-center justify-between"
         >
-            <div>
+            <div class="flex items-center gap-1">
                 <strong class="font-bold">{{
                     readingLogEntry.book.title
                 }}</strong>
                 by
                 <span>{{ readingLogEntry.book.author }}</span>
-            </div>
-            <div
-                class="m-1 block rounded-2xl bg-neutral-100 p-2 text-sm uppercase"
-            >
-                {{ readingLogEntry.status_label }}
+                <div
+                    class="m-1 block rounded-2xl bg-neutral-300 p-2 text-center text-sm uppercase"
+                >
+                    {{ readingLogEntry.status_label }}
+                </div>
             </div>
 
-            <UpdateReadingLogEntry
-                :reading-log-entry="readingLogEntry"
-                :statuses="statuses"
-            />
+            <div class="flex gap-2">
+                <UpdateReadingLogEntry
+                    :reading-log-entry="readingLogEntry"
+                    :statuses="statuses"
+                />
 
-            <DeleteReadingLogEntry :reading-log-entry="readingLogEntry" />
+                <DeleteReadingLogEntry :reading-log-entry="readingLogEntry" />
+            </div>
         </li>
     </ul>
 </template>
