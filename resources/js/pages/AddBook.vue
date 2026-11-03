@@ -21,6 +21,7 @@ const onSuccess = (page: Page) => {
 
 <template>
     <div class="flex flex-col gap-3">
+        <div class="text-center italic">or</div>
         <Button
             type="button"
             variant="default"

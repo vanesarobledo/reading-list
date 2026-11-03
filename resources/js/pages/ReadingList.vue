@@ -21,11 +21,13 @@ defineProps<{
             class="flex items-center justify-between"
         >
             <div class="flex items-center gap-1">
-                <strong class="font-bold">{{
-                    readingLogEntry.book.title
-                }}</strong>
-                by
-                <span>{{ readingLogEntry.book.author }}</span>
+                <div>
+                    <strong class="font-bold">{{
+                        readingLogEntry.book.title
+                    }}</strong>
+                    by
+                    <span>{{ readingLogEntry.book.author }}</span>
+                </div>
                 <div
                     class="m-1 block rounded-2xl bg-neutral-300 p-2 text-center text-sm uppercase"
                 >
