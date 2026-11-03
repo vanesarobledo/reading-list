@@ -52,7 +52,7 @@ class ReadingLogEntryController extends Controller
         Gate::authorize('update', $readingLogEntry);
 
         $validated = $request->validate([
-            'status' => ['required', Rule::enum(ReadingStatus::class)],
+            'status' => [Rule::enum(ReadingStatus::class)],
             'started_at' => 'nullable|date',
             'finished_at' => 'nullable|date',
         ]);
