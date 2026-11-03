@@ -49,6 +49,8 @@ class ReadingLogEntryController extends Controller
 
     public function update(Request $request, ReadingLogEntry $readingLogEntry)
     {
+        Gate::authorize('update', $readingLogEntry);
+
         $readingLogEntry->update($request->toArray());
 
         return Inertia::flash([

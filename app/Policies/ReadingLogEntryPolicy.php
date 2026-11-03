@@ -7,10 +7,10 @@ use App\Models\User;
 
 class ReadingLogEntryPolicy
 {
-    //    public function update(User $user, ReadingLogEntry $readingLogEntry): bool
-    //    {
-    //        return false;
-    //    }
+    public function update(User $user, ReadingLogEntry $readingLogEntry): bool
+    {
+        return $readingLogEntry->user()->is($user);
+    }
 
     public function delete(User $user, ReadingLogEntry $readingLogEntry): bool
     {
