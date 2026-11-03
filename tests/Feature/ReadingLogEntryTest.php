@@ -417,4 +417,28 @@ describe('update a reading log entry', function () {
             ->and($duplicateReadingLogEntry->finished_at?->toDateString())->not->toBe(FINISHED_AT);
     });
 
+    test('user with reading log entries with the same book can update an individual entry to the same status and keeps both entries', function () {
+        $book = Book::factory()->create();
+        $user = User::factory()->create();
+
+        $readingLogEntry = ReadingLogEntry::factory()->for($book)->for($user)->create([
+            'status' => ReadingStatus::FINISHED->value,
+        ]);
+        $duplicateReadingLogEntry = ReadingLogEntry::factory()->for($book)->for($user)->create([
+            'status' => ReadingStatus::READING->value,
+        ]);
+
+        $payload = [
+            'status' => ReadingStatus::FINISHED->value,
+        ];
+
+        $this->actingAs($user)
+            ->patch(route('reading.log.update', $readingLogEntry), $payload);
+
+        $readingLogEntry->refresh();
+
+        expect($readingLogEntry->status)->toBe(ReadingStatus::FINISHED);
+        $this->assertModelExists($duplicateReadingLogEntry);
+    });
+
 });
