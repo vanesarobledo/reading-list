@@ -1,12 +1,14 @@
 <script setup lang="ts">
-import { Pen } from '@lucide/vue';
-import { Button } from '@/components/ui/button';
-import { Dialog, DialogTrigger } from '@/components/ui/dialog';
-import type { ReadingLogEntry } from '@/types';
+import type { ReadingLogEntry, ReadingStatus } from '@/types';
 import DeleteReadingLogEntry from './DeleteReadingLogEntry.vue';
+import UpdateReadingLogEntry from './UpdateReadingLogEntry.vue';
 
 defineProps<{
     readingLogEntries: Array<ReadingLogEntry>;
+    statuses: Array<{
+        label: string;
+        value: ReadingStatus;
+    }>;
 }>();
 </script>
 
@@ -31,16 +33,10 @@ defineProps<{
                 {{ readingLogEntry.status_label }}
             </div>
 
-            <Dialog>
-                <DialogTrigger as-child>
-                    <Button
-                        variant="secondary"
-                        :aria-label="`Update ${readingLogEntry.book.title} entry`"
-                    >
-                        <Pen />
-                    </Button>
-                </DialogTrigger>
-            </Dialog>
+            <UpdateReadingLogEntry
+                :reading-log-entry="readingLogEntry"
+                :statuses="statuses"
+            />
 
             <DeleteReadingLogEntry :reading-log-entry="readingLogEntry" />
         </li>

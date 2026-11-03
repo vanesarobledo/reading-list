@@ -39,7 +39,10 @@ defineProps<{
         <div
             class="min-h-min flex-1 rounded-xl border p-4 dark:border-sidebar-border"
         >
-            <ReadingList :reading-log-entries="readingLogEntries" />
+            <ReadingList
+                :reading-log-entries="readingLogEntries"
+                :statuses="readingLogEntryStatuses"
+            />
         </div>
     </div>
 </template>
