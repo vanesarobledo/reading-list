@@ -389,4 +389,31 @@ describe('update a reading log entry', function () {
             ->and($updatedReadingLogEntry->started_at)->toBe($readingLogEntry->started_at)
             ->and($updatedReadingLogEntry->finished_at)->toBe($readingLogEntry->finished_at);
     });
+
+    test('user with duplicate reading log entries only updates the individual reading log entry', function () {
+        $book = Book::factory()->create();
+        $user = User::factory()->create();
+
+        $readingLogEntry = ReadingLogEntry::factory()->for($book)->for($user)->create();
+        $duplicateReadingLogEntry = ReadingLogEntry::factory()->for($book)->for($user)->create();
+
+        $payload = [
+            'status' => ReadingStatus::FINISHED->value,
+            'started_at' => STARTED_AT,
+            'finished_at' => FINISHED_AT,
+        ];
+
+        $this->actingAs($user)
+            ->from(route('dashboard'))
+            ->patch(route('reading.log.update', $readingLogEntry), $payload);
+
+        $readingLogEntry->refresh();
+
+        expect($readingLogEntry->status)->toBe(ReadingStatus::FINISHED)
+            ->and($readingLogEntry->started_at?->toDateString())->toBe(STARTED_AT)
+            ->and($readingLogEntry->finished_at?->toDateString())->toBe(FINISHED_AT)
+            ->and($duplicateReadingLogEntry->status)->not->toBe(ReadingStatus::FINISHED)
+            ->and($duplicateReadingLogEntry->started_at?->toDateString())->not->toBe(STARTED_AT)
+            ->and($duplicateReadingLogEntry->finished_at?->toDateString())->not->toBe(FINISHED_AT);
+    });
 });
