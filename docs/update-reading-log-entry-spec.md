@@ -1,5 +1,5 @@
-**Status**: agreed. Backend test cases outlined; frontend test cases to be outlined in the follow-up.
-**Issue**: #13.
+**Status**: in progress. Backend implemented and all 12 update tests passing. Frontend edit dialog built. Remaining: review. Frontend test cases to be outlined in the follow-up.
+**Issue**: #13. **PR**: #26 (draft).
 **Mode**: Socratic. This doc describes *what* and *why*, not *how* line-by-line. Contracts are fixed once agreed; implementation is yours. Concepts to look up are named, not coded.
 
 ## Goal
@@ -103,20 +103,21 @@ Two kinds of behaviour have no tests, for different reasons:
 
 ### Route: `routes/web.php`
 
-- [ ] Add the `PATCH` route per the contracts table.
+- [x] Add the `PATCH` route per the contracts table.
 
 ### Controller: `ReadingLogEntryController::update()`
 
-- [ ] Un-comment and implement `update`. The signature already uses route model binding.
-- [ ] Authorize before validating or updating (via the policy below).
-- [ ] Validate the editable fields with the same rules as `store()`, adjusted for partial updates (fields may be absent), plus the "at least one field present" rule.
-- [ ] Update the entry from the validated data only, flash the toast, redirect back.
+- [x] Un-comment and implement `update`. The signature already uses route model binding.
+- [x] Authorize before validating or updating (via the policy below).
+- [x] Validate the editable fields with the same rules as `store()`, adjusted for partial updates (fields may be absent), plus the "at least one field present" rule.
+- [x] Update the entry from the validated data only, flash the toast, redirect back.
+- As built: `status` has only `Rule::enum(...)` (no `required`), so an absent status skips validation, and a present `null` fails the enum rule. "At least one field present" is a check on the validated array after `validate()`: if it's `[]`, throw `ValidationException::withMessages()`. A field sent as `null` survives `validate()` as a key, so test 3 passes.
 - Model note: `ReadingLogEntry::$fillable` includes `user_id` and `book_id`. Mass assignment protection won't stop those from changing, so only validated, editable fields go to `update()`.
 
 ### Policy: `ReadingLogEntryPolicy`
 
-- [ ] Un-comment and implement `update`: a user can update an entry only if they own it.
-- [ ] `update` and `delete` will have the same rule. Decide whether that duplication is fine or worth sharing.
+- [x] Un-comment and implement `update`: a user can update an entry only if they own it.
+- [x] `update` and `delete` will have the same rule. Decide whether that duplication is fine or worth sharing. **Decision:** kept duplicated. Each is a one-line ownership check, and the two may diverge later.
 
 ## Frontend
 
@@ -138,17 +139,20 @@ Revisit and extract the fields when:
 
 ### Edit form fields (duplicated from `AddToReadingList.vue`)
 
-- [ ] Copy the status `<select>` and the two date inputs into the edit dialog. Leave out the book selector and the duplicate-entry warning.
-- [ ] Pre-fill the fields with the entry's current values. The add form starts empty.
+- [x] Copy the status `<select>` and the two date inputs into the edit dialog. Leave out the book selector and the duplicate-entry warning.
+- [x] Pre-fill the fields with the entry's current values. The add form starts empty.
 
 ### `resources/js/pages/ReadingList.vue`
 
-- [ ] Add an edit button to each reading log entry `<li>`.
-- [ ] Clicking it opens a shadcn `Dialog` with the edit form, pre-filled with the entry's current values. The dialog names the book.
-- [ ] Submit sends the `PATCH` via the generated Wayfinder action for `ReadingLogEntryController::update`. Cancel closes the dialog and changes nothing.
-- [ ] The submit button is disabled until a field has changed. `<Form>` exposes `isDirty` as a slot prop (present in `@inertiajs/vue3` 3.6.1, `dist/index.js` ~line 1169).
-- [ ] Show validation errors in the dialog (`InputError`).
+- [x] Add an edit button to each reading log entry `<li>`.
+- [x] Clicking it opens a shadcn `Dialog` with the edit form, pre-filled with the entry's current values. The dialog names the book.
+- [x] Submit sends the `PATCH` via the generated Wayfinder action for `ReadingLogEntryController::update`. Cancel closes the dialog and changes nothing.
+- [x] The submit button is disabled until a field has changed. `<Form>` exposes `isDirty` as a slot prop (present in `@inertiajs/vue3` 3.6.1, `dist/index.js` ~line 1169).
+- [x] Show validation errors in the dialog (`InputError`).
 - Pre-fill gotcha: `started_at` / `finished_at` reach the frontend as ISO 8601 timestamps (the model's `date` cast serializes as e.g. `2026-01-05T00:00:00.000000Z`), but `<input type="date">` only accepts `YYYY-MM-DD`. Convert in UTC, as `formatDate` in `resources/js/lib/dateUtils.ts` does, or a timezone west of UTC shows the day before.
+  - **As built:** the conversion happens on the backend instead. `ReadingLogEntryResource` now returns `started_at?->toDateString()`, so the frontend gets `YYYY-MM-DD` (or `null`) and binds it straight to the input. `formatDate` still works on that shape, since `new Date("YYYY-MM-DD")` parses as UTC midnight. Trade-off: every consumer of the resource now gets a date-only string, which suits a date-only column.
+- As built: the edit dialog lives in `UpdateReadingLogEntry.vue`, rendered once per row from `ReadingList.vue`. `ReadingList.vue` takes a new `statuses` prop, passed down from `Dashboard.vue`.
+- Side refactor on this branch: the delete button and dialog moved out of `ReadingList.vue` into `DeleteReadingLogEntry.vue`, so each row now renders the two components side by side.
 - Note: `<Form>` submits every named input, so the real UI always sends all three fields. The partial-update paths (tests 2 and 3) are exercised by the API, not the UI. That's fine, since `PATCH` must still handle them.
 - Plain styling only. Polish belongs to #14.
 
@@ -182,9 +186,9 @@ Revisit and extract the fields when:
 ## Workflow checklist
 
 - [x] Branch off `main`.
-- [ ] Commit the first failing test, push, open a **draft PR** with `closes #13`.
-- [ ] Commit order: controller tests → controller/route/policy → tests passing → frontend.
-- [ ] Manual check in the browser (below).
+- [x] Commit the first failing test, push, open a **draft PR** with `closes #13`. (#26)
+- [x] Commit order: controller tests → controller/route/policy → tests passing → frontend. Done test by test (red → green per test), then the frontend.
+- [x] Manual check in the browser (below).
 - [ ] Mark the PR ready, get it reviewed (human or AI), address the review. AI review last.
 - [ ] Merge only when CI is green.
 - [ ] Fill in the Actual column and the issue's time tracking.
@@ -193,14 +197,15 @@ Revisit and extract the fields when:
 
 Run `php artisan test --filter=ReadingLogEntry` first, then on `/dashboard`:
 
-- [ ] Click edit → dialog appears naming the right book, pre-filled with the entry's current values (check the dates show the right day).
-- [ ] Submit button is disabled until a field changes.
-- [ ] Cancel → nothing changed, dialog closes.
-- [ ] Change the status and dates, submit → list shows the new values, success toast shows.
-- [ ] Clear a date, submit → the date is gone from the entry.
-- [ ] Submit invalid data (e.g. a tampered status in dev tools) → error shown, entry unchanged.
-- [ ] With two entries for the same book, edit one → the other is unchanged.
-- [ ] Network tab shows the request verb (real `PATCH` or spoofed via `_method`; note which).
+- [x] Click edit → dialog appears naming the right book, pre-filled with the entry's current values (check the dates show the right day).
+- [x] Submit button is disabled until a field changes.
+- [x] Cancel → nothing changed, dialog closes.
+- [x] Change the status and dates, submit → list shows the new values, success toast shows.
+- [x] Clear a date, submit → the date is gone from the entry.
+- [x] Submit invalid data (e.g. a tampered status in dev tools) → error shown, entry unchanged.
+  - Tampering with the status in Firefox: editing an existing `<option>`'s `value` doesn't work. Selecting it makes the form dirty, the form re-renders, and Vue re-applies `:value` to the options it rendered, so the original value is submitted. Instead, add an option Vue doesn't manage: Inspect the status `<select>`, right-click an `<option>` → **Edit As HTML**, add `<option value="bogus">Bogus</option>`, then select it. Change a date too and submit, to check that nothing is saved.
+- [x] With two entries for the same book, edit one → the other is unchanged.
+- [x] Network tab shows the request verb (real `PATCH` or spoofed via `_method`; note which). Observed: real `PATCH`.
 
 ## Follow-up: frontend tests (after this branch)
 
