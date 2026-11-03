@@ -333,7 +333,7 @@ describe('update a reading log entry', function () {
         $readingLogEntry->refresh();
 
         expect($readingLogEntry->status)->toBe(ReadingStatus::FINISHED);
-        expect($readingLogEntry->user())->not->toBe($anotherUser);
+        expect($readingLogEntry->user_id)->not->toBe($anotherUser->id);
         expect($readingLogEntry->book_id)->not->toBe($anotherBook->id);
     });
 });
