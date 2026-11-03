@@ -47,7 +47,7 @@ const finished_at = useId();
             <Form
                 class="flex flex-col gap-4"
                 :action="update(readingLogEntry.id)"
-                #default="{ errors, processing }"
+                #default="{ errors, processing, isDirty }"
                 :options="{
                     preserveScroll: true,
                 }"
@@ -73,7 +73,6 @@ const finished_at = useId();
                                 class="rounded-md border border-neutral-300 p-1"
                                 name="status"
                                 :id="status"
-                                :value="readingLogEntry.status"
                                 required
                             >
                                 <option
@@ -103,7 +102,6 @@ const finished_at = useId();
                                 :id="started_at"
                                 :defaultValue="readingLogEntry.started_at"
                             />
-                            {{ readingLogEntry.started_at }}
                             <InputError :message="errors.started_at" />
                         </div>
                         <div class="flex flex-col">
@@ -137,7 +135,7 @@ const finished_at = useId();
                         class="hover:cursor-pointer"
                         type="submit"
                         variant="default"
-                        :disabled="processing"
+                        :disabled="processing || !isDirty"
                     >
                         {{ processing ? 'Updating...' : 'Update' }}
                     </Button>
