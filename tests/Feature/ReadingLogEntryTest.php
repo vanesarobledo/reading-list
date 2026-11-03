@@ -368,4 +368,25 @@ describe('update a reading log entry', function () {
             'finished_at' => 'not a date',
         ]],
     ]);
+
+    test('rejects request that does not contain valid keys to update', function () {
+        $book = Book::factory()->create();
+        $user = User::factory()->create();
+
+        $readingLogEntry = ReadingLogEntry::factory()->for($book)->for($user)->create();
+
+        $payload = [];
+
+        $response = $this->actingAs($user)
+            ->from(route('dashboard'))
+            ->patch(route('reading.log.update', $readingLogEntry), $payload);
+
+        $response->assertInvalid()->assertRedirect(route('dashboard'));
+
+        $updatedReadingLogEntry = $readingLogEntry->fresh();
+
+        expect($updatedReadingLogEntry->status)->toBe($readingLogEntry->status)
+            ->and($updatedReadingLogEntry->started_at)->toBe($readingLogEntry->started_at)
+            ->and($updatedReadingLogEntry->finished_at)->toBe($readingLogEntry->finished_at);
+    });
 });

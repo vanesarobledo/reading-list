@@ -7,6 +7,7 @@ use App\Models\ReadingLogEntry;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Validation\Rule;
+use Illuminate\Validation\ValidationException;
 use Inertia\Inertia;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 
@@ -56,6 +57,10 @@ class ReadingLogEntryController extends Controller
             'started_at' => 'nullable|date',
             'finished_at' => 'nullable|date',
         ]);
+
+        if ($validated === []) {
+            throw ValidationException::withMessages(['errors' => 'Request cannot be empty.']);
+        }
 
         $readingLogEntry->update($validated);
 
