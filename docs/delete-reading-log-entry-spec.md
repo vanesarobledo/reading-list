@@ -1,5 +1,5 @@
-**Status**: agreed via `/grill-me`, backend and frontend implemented and manually verified. PR #22 open, review and merge remaining. Frontend tests are a stretch goal for a follow-up branch.
-**Issue**: #12.
+**Status**: done. Merged to `main` in #22 on 2026-10-30. Frontend tests are a stretch goal, tracked in #25.
+**Issue**: #12 (closed). **PR**: #22 (merged).
 **Mode**: Socratic. This doc describes *what* and *why*, not *how* line-by-line. Contracts are fixed; implementation is yours. Concepts to look up are named, not coded.
 
 ## Goal
@@ -74,11 +74,11 @@ Test 5 catches any delete scoped by book instead of by entry `id`: by `user_id` 
 
 ## Laravel concepts to look up
 
-- **Route model binding**: how `{readingLogEntry}` becomes a model, and why an unknown id is a 404 for free. [Laravel docs: Route Model Binding](https://laravel.com/docs/12.x/routing#route-model-binding)
-- **Policies**: generating, auto-discovery, writing a policy method. [Laravel docs: Authorization → Creating Policies](https://laravel.com/docs/12.x/authorization#creating-policies)
-- **Authorizing in a controller**: the options (`Gate::authorize`, `$this->authorize`, `can` middleware) and how a denial turns into a 403. [Laravel docs: Authorizing Actions Using Policies](https://laravel.com/docs/12.x/authorization#authorizing-actions-using-policies)
-- **Resource controller conventions**: why the method is `destroy` and what URI/verb it usually maps to. [Laravel docs: Resource Controllers](https://laravel.com/docs/12.x/controllers#resource-controllers)
-- **Testing helpers**: `assertForbidden`, `assertNotFound`, `assertRedirect`/`assertRedirectToRoute`, `assertModelMissing`/`assertModelExists`, `assertDatabaseMissing`. [Laravel docs: HTTP Tests](https://laravel.com/docs/12.x/http-tests) and [Database Testing](https://laravel.com/docs/12.x/database-testing#available-assertions)
+- **Route model binding**: how `{readingLogEntry}` becomes a model, and why an unknown id is a 404 for free. [Laravel docs: Route Model Binding](https://laravel.com/docs/13.x/routing#route-model-binding)
+- **Policies**: generating, auto-discovery, writing a policy method. [Laravel docs: Authorization → Creating Policies](https://laravel.com/docs/13.x/authorization#creating-policies)
+- **Authorizing in a controller**: the options (`Gate::authorize`, `$this->authorize`, `can` middleware) and how a denial turns into a 403. [Laravel docs: Authorizing Actions Using Policies](https://laravel.com/docs/13.x/authorization#authorizing-actions-using-policies)
+- **Resource controller conventions**: why the method is `destroy` and what URI/verb it usually maps to. [Laravel docs: Resource Controllers](https://laravel.com/docs/13.x/controllers#resource-controllers)
+- **Testing helpers**: `assertForbidden`, `assertNotFound`, `assertRedirect`/`assertRedirectToRoute`, `assertModelMissing`/`assertModelExists`, `assertDatabaseMissing`. [Laravel docs: HTTP Tests](https://laravel.com/docs/13.x/http-tests) and [Database Testing](https://laravel.com/docs/13.x/database-testing#available-assertions)
 - **Inertia DELETE visits**: how Inertia sends a `DELETE` and follows the redirect. [Inertia docs: Manual visits](https://inertiajs.com/manual-visits)
 
 ## Explicitly out of scope (don't build these now)
@@ -88,7 +88,7 @@ Test 5 catches any delete scoped by book instead of by entry `id`: by `user_id` 
 - Deleting the `Book` itself.
 - Optimistic UI update.
 - The `update` policy method (belongs to the update issue).
-- Frontend tests on this branch. They're a stretch goal for a follow-up branch (see the last section).
+- Frontend tests on this branch. They're a stretch goal for a follow-up branch, tracked in #25 (see the last section).
 - Styling beyond functional (#14).
 
 ## Workflow checklist
@@ -96,9 +96,9 @@ Test 5 catches any delete scoped by book instead of by entry `id`: by `user_id` 
 - [x] Commit the first failing test, push, open a **draft PR** with `closes #12`.
 - [x] Commit order: controller tests → controller/route/policy → tests passing → frontend.
 - [x] Manual check in the browser (below).
-- [ ] Mark the PR ready, get it reviewed (human or AI), address the review. AI review last.
-- [ ] Merge only when CI is green.
-- [ ] Fill in the Actual column and the issue's time tracking. Actual column filled in on GitHub, except code review.
+- [x] Mark the PR ready, get it reviewed (human or AI), address the review. AI review last.
+- [x] Merge only when CI is green.
+- [x] Fill in the Actual column and the issue's time tracking.
 
 ## Manual verification checklist
 
@@ -112,11 +112,13 @@ Run `php artisan test --filter=ReadingLogEntry` first, then on `/dashboard`:
 
 ## Stretch goal: frontend tests (after this branch)
 
-Vitest is on `main` now (`test/useBookSearch`, #18), so the delete button and dialog can be tested. This work doesn't block #12 or PR #22.
+Vitest is on `main` now (`test/useBookSearch`, #18), so the delete button and dialog can be tested. **Issue:** #25, with its own timebox, so #12's time tracking stays closed.
 
-**Branch:** start from `main` after PR #22 merges, because `ReadingList.vue` only exists on this branch until then. Give it its own issue and timebox, so #12's time tracking stays closed.
+**Branch:** start from `main`.
 
-**Tests:** `resources/js/pages/ReadingList.test.ts`
+**Where the code lives now:** the delete button and dialog moved out of `ReadingList.vue` into `DeleteReadingLogEntry.vue` (#26), and both now live in `resources/js/components/` (#29). The list cases below test `ReadingList.vue`, and the dialog cases test `DeleteReadingLogEntry.vue`.
+
+**Tests:** in `resources/js/components/`, next to `AddBook.test.ts`. Decide whether the list and dialog cases share one test file or get one each.
 
 ### Approach
 

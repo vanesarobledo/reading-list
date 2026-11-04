@@ -1,5 +1,5 @@
-**Status**: in progress. Backend implemented and all 12 update tests passing. Frontend edit dialog built. Remaining: review. Frontend test cases to be outlined in the follow-up.
-**Issue**: #13. **PR**: #26 (draft).
+**Status**: done. Merged to `main` in #26 on 2026-11-03. Frontend tests follow up in #27.
+**Issue**: #13 (closed). **PR**: #26 (merged).
 **Mode**: Socratic. This doc describes *what* and *why*, not *how* line-by-line. Contracts are fixed once agreed; implementation is yours. Concepts to look up are named, not coded.
 
 ## Goal
@@ -22,7 +22,7 @@ As a user, I can edit a reading log entry I added. This is the "U" of CRUD: an e
 - **Reread safety is still a domain risk.** Update one *entry* (by its id), never "the user's entry for this book".
 - **Duplicate `book_id` + `status` entries are intended.** Updating an entry so it matches another entry's book and status is the reread flow working as designed, and a test pins that down.
 - **Dates are type-checked only.** No ordering rule between `started_at` and `finished_at`, and no check for entries that are identical in every field. Both are deliberately untested; see "What's deliberately untested" below.
-- **Frontend tests land after this branch**, in a follow-up.
+- **Frontend tests land after this branch**, in a follow-up (#27).
 
 - **Extra fields in the payload are silently ignored.** `book_id`, `user_id` or anything else not editable is dropped, not rejected. It's what `$request->validate()` gives you by default (it returns only validated keys), and rejecting buys nothing since the UI never sends them.
 - **Toast mirrors add and delete:** `"<book title> updated in reading log"`. Wording may still change during implementation. Known limitation, shared with the delete toast: it names the book, not the specific entry, so on a reread it doesn't say *which* entry changed. Acceptable for now.
@@ -111,7 +111,7 @@ Two kinds of behaviour have no tests, for different reasons:
 - [x] Authorize before validating or updating (via the policy below).
 - [x] Validate the editable fields with the same rules as `store()`, adjusted for partial updates (fields may be absent), plus the "at least one field present" rule.
 - [x] Update the entry from the validated data only, flash the toast, redirect back.
-- As built: `status` has only `Rule::enum(...)` (no `required`), so an absent status skips validation, and a present `null` fails the enum rule. "At least one field present" is a check on the validated array after `validate()`: if it's `[]`, throw `ValidationException::withMessages()`. A field sent as `null` survives `validate()` as a key, so test 3 passes.
+- As built: `status` has only `Rule::enum(...)` (no `required`), so an absent status skips validation, and a present `null` fails the enum rule. "At least one field present" is a check on the validated array after `validate()`: if it's `[]`, throw `ValidationException::withMessages()`. A field sent as `null` survives `validate()` as a key, so test 3 passes. The error is keyed `validation` with the message "At least one of status, started_at or finished_at is required." (renamed during review so the frontend doesn't get `errors.errors`).
 - Model note: `ReadingLogEntry::$fillable` includes `user_id` and `book_id`. Mass assignment protection won't stop those from changing, so only validated, editable fields go to `update()`.
 
 ### Policy: `ReadingLogEntryPolicy`
@@ -158,15 +158,15 @@ Revisit and extract the fields when:
 
 ## Laravel concepts to look up
 
-- **Resource controller conventions**: why the method is `update` and which verbs it maps to. [Laravel docs: Resource Controllers](https://laravel.com/docs/12.x/controllers#resource-controllers)
+- **Resource controller conventions**: why the method is `update` and which verbs it maps to. [Laravel docs: Resource Controllers](https://laravel.com/docs/13.x/controllers#resource-controllers)
 - **`PUT` vs `PATCH` semantics**: full replacement vs. partial modification. [RFC 9110 §9.3.4 (PUT)](https://www.rfc-editor.org/rfc/rfc9110#section-9.3.4) and [RFC 5789 (PATCH)](https://www.rfc-editor.org/rfc/rfc5789)
-- **Validation for partial updates**: `sometimes`, `required`, `nullable`, `required_without_all`, and what `validate()` returns. [Laravel docs: Validation → Validating When Present](https://laravel.com/docs/12.x/validation#validating-when-present) and [Available Validation Rules](https://laravel.com/docs/12.x/validation#available-validation-rules)
-- **Custom "after" validation** (one way to express "at least one field present"). [Laravel docs: Performing Additional Validation](https://laravel.com/docs/12.x/validation#performing-additional-validation)
-- **`ConvertEmptyStringsToNull`**: why an emptied date input arrives as `null`. [Laravel docs: Requests → Input Trimming and Normalization](https://laravel.com/docs/12.x/requests#input-trimming-and-normalization)
-- **Mass assignment**: what `$fillable` protects against and what it doesn't. [Laravel docs: Mass Assignment](https://laravel.com/docs/12.x/eloquent#mass-assignment)
-- **Date serialization**: how `date` casts appear in JSON. [Laravel docs: Date Casting](https://laravel.com/docs/12.x/eloquent-mutators#date-casting)
-- **Policies**: writing a second method on an existing policy. [Laravel docs: Writing Policies](https://laravel.com/docs/12.x/authorization#writing-policies)
-- **Testing helpers**: `assertSessionHasErrors`, `assertForbidden`, `assertNotFound`, `$model->refresh()`, `assertDatabaseHas`. [Laravel docs: HTTP Tests](https://laravel.com/docs/12.x/http-tests) and [Database Testing](https://laravel.com/docs/12.x/database-testing#available-assertions)
+- **Validation for partial updates**: `sometimes`, `required`, `nullable`, `required_without_all`, and what `validate()` returns. [Laravel docs: Validation → Validating When Present](https://laravel.com/docs/13.x/validation#validating-when-present) and [Available Validation Rules](https://laravel.com/docs/13.x/validation#available-validation-rules)
+- **Custom "after" validation** (one way to express "at least one field present"). [Laravel docs: Performing Additional Validation](https://laravel.com/docs/13.x/validation#performing-additional-validation)
+- **`ConvertEmptyStringsToNull`**: why an emptied date input arrives as `null`. [Laravel docs: Requests → Input Trimming and Normalization](https://laravel.com/docs/13.x/requests#input-trimming-and-normalization)
+- **Mass assignment**: what `$fillable` protects against and what it doesn't. [Laravel docs: Mass Assignment](https://laravel.com/docs/13.x/eloquent#mass-assignment)
+- **Date serialization**: how `date` casts appear in JSON. [Laravel docs: Date Casting](https://laravel.com/docs/13.x/eloquent-mutators#date-casting)
+- **Policies**: writing a second method on an existing policy. [Laravel docs: Writing Policies](https://laravel.com/docs/13.x/authorization#writing-policies)
+- **Testing helpers**: `assertSessionHasErrors`, `assertForbidden`, `assertNotFound`, `$model->refresh()`, `assertDatabaseHas`. [Laravel docs: HTTP Tests](https://laravel.com/docs/13.x/http-tests) and [Database Testing](https://laravel.com/docs/13.x/database-testing#available-assertions)
 - **Pest datasets**: for test 8. [Pest docs: Datasets](https://pestphp.com/docs/datasets)
 - **Inertia forms**: pre-filling a `<Form>`, `isDirty`, and sending `PATCH`. [Inertia docs: Forms](https://inertiajs.com/forms)
 
@@ -189,9 +189,9 @@ Revisit and extract the fields when:
 - [x] Commit the first failing test, push, open a **draft PR** with `closes #13`. (#26)
 - [x] Commit order: controller tests → controller/route/policy → tests passing → frontend. Done test by test (red → green per test), then the frontend.
 - [x] Manual check in the browser (below).
-- [ ] Mark the PR ready, get it reviewed (human or AI), address the review. AI review last.
-- [ ] Merge only when CI is green.
-- [ ] Fill in the Actual column and the issue's time tracking.
+- [x] Mark the PR ready, get it reviewed (human or AI), address the review. AI review last.
+- [x] Merge only when CI is green.
+- [x] Fill in the Actual column and the issue's time tracking.
 
 ## Manual verification checklist
 
@@ -209,6 +209,8 @@ Run `php artisan test --filter=ReadingLogEntry` first, then on `/dashboard`:
 
 ## Follow-up: frontend tests (after this branch)
 
-Lands after this branch, in its own issue and timebox, like the delete follow-up.
+Tracked in #27, with its own timebox, like the delete follow-up.
 
-*Test cases to be outlined.*
+*Test cases to be outlined.* Carried over from the #26 review:
+
+- The edit form pre-fills `started_at` / `finished_at` from the resource's `YYYY-MM-DD` strings. No test covers that yet.
