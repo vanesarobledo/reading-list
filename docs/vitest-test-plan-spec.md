@@ -82,7 +82,7 @@ swallowed into `'default'` — failures must come from assertions (lessons §21)
 
 ## Part 3 — `SearchBook.vue` (done)
 
-**Tests:** `resources/js/pages/SearchBook.test.ts`
+**Tests:** `../resources/js/components/SearchBook.test.ts`
 
 `useBookSearch()` is mocked entirely; a `makeState(overrides)` helper builds
 its return value. Background:
@@ -101,7 +101,7 @@ Test cases:
 
 ## Part 4 — `AddBook.vue` (full flow via a `router.post` spy)
 
-**Tests:** `resources/js/pages/AddBook.test.ts`
+**Tests:** `../resources/js/components/AddBook.test.ts`
 
 Keep the **real** `<Form>` and spy on the router beneath it. `<Form>` calls
 `router[method](url, data, options)`, and `options` holds the visit callbacks

@@ -3,9 +3,9 @@ import { within } from '@testing-library/vue';
 import { cleanup, fireEvent, render } from '@testing-library/vue';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { computed, ref } from 'vue';
+import SearchBook from '@/components/SearchBook.vue';
 import type { UseBookSearchReturn } from '@/composables/useBookSearch';
 import { useBookSearch } from '@/composables/useBookSearch';
-import SearchBook from '@/pages/SearchBook.vue';
 import type { Book, BookSearchError } from '@/types';
 
 vi.mock('@/composables/useBookSearch');

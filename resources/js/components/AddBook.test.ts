@@ -5,7 +5,7 @@ import { flushPromises } from '@vue/test-utils';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { nextTick } from 'vue';
 import { store } from '@/actions/App/Http/Controllers/BookController';
-import AddBook from '@/pages/AddBook.vue';
+import AddBook from '@/components/AddBook.vue';
 import type { Book } from '@/types';
 
 describe('AddBook', () => {

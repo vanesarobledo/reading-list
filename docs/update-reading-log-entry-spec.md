@@ -142,7 +142,7 @@ Revisit and extract the fields when:
 - [x] Copy the status `<select>` and the two date inputs into the edit dialog. Leave out the book selector and the duplicate-entry warning.
 - [x] Pre-fill the fields with the entry's current values. The add form starts empty.
 
-### `resources/js/pages/ReadingList.vue`
+### `../resources/js/components/ReadingList.vue`
 
 - [x] Add an edit button to each reading log entry `<li>`.
 - [x] Clicking it opens a shadcn `Dialog` with the edit form, pre-filled with the entry's current values. The dialog names the book.
