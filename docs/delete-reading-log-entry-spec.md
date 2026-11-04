@@ -62,7 +62,7 @@ Test 5 catches any delete scoped by book instead of by entry `id`: by `user_id` 
 
 ## Frontend
 
-### `resources/js/pages/ReadingList.vue` (extracted from `Dashboard.vue`)
+### `../resources/js/components/ReadingList.vue` (extracted from `Dashboard.vue`)
 
 - [x] Add a delete button to each reading log entry `<li>`.
 - [x] Clicking it opens a confirmation using the installed shadcn `Dialog`. The dialog names the book (e.g. "Remove *Dune* from your reading log?") so a misclick on a reread is obvious.
